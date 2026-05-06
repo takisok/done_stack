@@ -24,6 +24,11 @@
 </header>
 
 <div class="app">
+  <div class="top-status-row">
+    <div class="llm-status" id="llmStatus" data-state="checking">
+      <span class="llm-dot"></span><span class="llm-label">LLM 確認中…</span>
+    </div>
+  </div>
 
   <!-- ── ステージ（キャラクター + カウンター） ── -->
   <div class="stage">
@@ -57,9 +62,6 @@
       <input type="text" id="doneInput" class="done-input"
         placeholder="例：企画書を完成させた、30分走った、読書した…" maxlength="200">
       <button id="doneBtn" class="done-btn">✓ Done!</button>
-    </div>
-    <div class="llm-status" id="llmStatus" data-state="checking">
-      <span class="llm-dot"></span><span class="llm-label">LLM 確認中…</span>
     </div>
   </div>
 

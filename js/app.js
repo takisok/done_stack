@@ -122,6 +122,7 @@ let maidTalkStopTimer = null;
 let maidFrameTimer = null;
 const MAID_FRAMES = {
   idle: 'img/maid/maid-idle.png',
+  thinking: 'img/maid/maid-thinking.png',
   talk: ['img/maid/maid-talk-1.png', 'img/maid/maid-talk-2.png', 'img/maid/maid-talk-1.png'],
 };
 
@@ -143,6 +144,23 @@ function stopMaidTalkAnimation(delay = 120) {
     if (maidImage) maidImage.src = MAID_FRAMES.idle;
     maidTalkStopTimer = null;
   }, delay);
+}
+
+function showMaidThinkingPose() {
+  const maidImage = document.getElementById('maidImage');
+  if (!maidImage) return;
+
+  if (maidFrameTimer) {
+    clearInterval(maidFrameTimer);
+    maidFrameTimer = null;
+  }
+
+  if (maidTalkStopTimer) {
+    clearTimeout(maidTalkStopTimer);
+    maidTalkStopTimer = null;
+  }
+
+  maidImage.src = MAID_FRAMES.thinking;
 }
 
 function startMaidTalkAnimation() {
@@ -452,15 +470,15 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const newText = document.getElementById('modalInput').value.trim();
   if (!newText) { alert('テキストを入力してください'); return; }
 
-  editingItem.text = newText;
-  const idx = items.findIndex(i => i.id === editingItem.id);
-  if (idx > -1) items[idx].text = newText;
+  const updatedItem = { ...editingItem, text: newText };
+  const idx = items.findIndex(i => i.id === updatedItem.id);
+  if (idx > -1) items[idx] = updatedItem;
 
   renderList();
   closeModal();
   setBubble('maidBubble', '修正されましたね！\n完璧主義ですわ✨');
 
-  try { await storageUpdate(editingItem); } catch (e) { console.warn('update failed', e); }
+  try { await storageUpdate(updatedItem); } catch (e) { console.warn('update failed', e); }
 });
 
 document.getElementById('btnDel').addEventListener('click', async () => {
@@ -643,20 +661,25 @@ function openMaidStream() {
 
   el.classList.remove('pop');
   void el.offsetWidth;
-  el.classList.add('pop');
+  el.classList.add('pop', 'thinking');
   el.innerHTML = '<span class="bubble-spinner"></span>';
-  startMaidTalkAnimation();
+  showMaidThinkingPose();
 
   let started = false;
   return {
     append(chunk) {
       if (!started) {
         started = true;
+        el.classList.remove('thinking');
         el.textContent = '';
+        startMaidTalkAnimation();
       }
       el.textContent += chunk;
     },
-    finish() { stopMaidTalkAnimation(180); },
+    finish() {
+      el.classList.remove('thinking');
+      stopMaidTalkAnimation(180);
+    },
   };
 }
 

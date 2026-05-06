@@ -67,7 +67,9 @@ body {
   text-decoration: none;
 }
 
-.header-menu { position: relative; }
+.header-menu {
+  position: relative;
+}
 
 .menu-btn {
   background: transparent;
@@ -192,6 +194,10 @@ body {
   border: 7px solid transparent;
   border-right: 0;
   border-left-color: var(--border-hi);
+}
+
+.maid-bubble.thinking::after {
+  display: none;
 }
 
 .bubble-spinner {
@@ -596,6 +602,14 @@ body {
   padding: 0 24px 64px;
 }
 
+.top-status-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 -24px;
+  padding: 8px 28px 0;
+  background: #eef0f3;
+}
+
 .stage {
   background: #eef0f3;
   gap: 26px;
@@ -612,7 +626,7 @@ body {
 
 .maid-bubble {
   right: 29%;
-  top: 42px;
+  top: 22px;
 }
 
 .mascot-img {
@@ -624,14 +638,16 @@ body {
 }
 
 .counter-col {
-  padding-bottom: 20px;
+  padding-bottom: 0;
+  transform: translateY(26px);
 }
 
 .counter-label {
   font-size: 18px;
   letter-spacing: 0.18em;
   order: 2;
-  margin-top: 8px;
+  margin-top: 0;
+  transform: translateY(-6px);
 }
 
 .counter-num {
@@ -1176,9 +1192,9 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 6px;
   justify-content: flex-end;
 }
+
 .llm-dot {
   width: 7px;
   height: 7px;
@@ -1214,6 +1230,11 @@ body {
     padding: 0 14px 48px;
   }
 
+  .top-status-row {
+    margin: 0 -14px;
+    padding: 7px 16px 0;
+  }
+
   .stage {
     gap: 8px;
     margin: 0 -14px;
@@ -1232,8 +1253,12 @@ body {
 
   .maid-bubble {
     right: 20%;
-    top: 28px;
+    top: 14px;
     width: 160px;
+  }
+
+  .counter-col {
+    transform: translateY(18px);
   }
 
   .input-wrap,
