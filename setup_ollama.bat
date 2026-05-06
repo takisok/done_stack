@@ -42,17 +42,17 @@ echo [OK] Ollama installed successfully.
 :: Download model
 :pull
 echo.
-echo -- Checking model (gemma3:4b) --
+echo -- Checking model (gemma4:latest) --
 
-ollama list 2>nul | findstr /I "gemma3:4b" > nul
+ollama list 2>nul | findstr /I "gemma4" > nul
 if %errorlevel% == 0 (
-  echo [OK] gemma3:4b is already downloaded.
+  echo [OK] gemma4:latest is already downloaded.
   goto :done
 )
 
-echo [  ] Downloading gemma3:4b (approx 3GB). Please wait...
+echo [  ] Downloading gemma4:latest (approx 10GB). Please wait...
 echo.
-ollama pull gemma3:4b
+ollama pull gemma4:latest
 if %errorlevel% neq 0 (
   echo [ERROR] Model download failed.
   pause

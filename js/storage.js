@@ -70,6 +70,11 @@ function dbDelete(id) {
   });
 }
 
+async function dbReplaceId(oldId, item) {
+  await dbPut(item);
+  await dbDelete(oldId);
+}
+
 // ── localStorage フォールバック ────────────────────
 
 function lsLoad() {
@@ -86,8 +91,58 @@ function lsSave(arr) {
   } catch { /* 容量超過などは無視 */ }
 }
 
-function lsNextId(arr) {
-  return arr.length ? Math.max(...arr.map(i => i.id)) + 1 : 1;
+function storageCreateId() {
+  const cryptoApi = globalThis.crypto;
+  if (cryptoApi?.randomUUID) return cryptoApi.randomUUID();
+
+  if (cryptoApi?.getRandomValues) {
+    const bytes = cryptoApi.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((b) => b.toString(16).padStart(2, '0'));
+    return [
+      hex.slice(0, 4).join(''),
+      hex.slice(4, 6).join(''),
+      hex.slice(6, 8).join(''),
+      hex.slice(8, 10).join(''),
+      hex.slice(10, 16).join(''),
+    ].join('-');
+  }
+
+  return `fallback-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function storageNeedsIdMigration(item) {
+  return typeof item.id !== 'string' || !item.id.includes('-');
+}
+
+async function storageNormalizeIds(items) {
+  const migrated = [];
+
+  for (const item of items) {
+    if (!storageNeedsIdMigration(item)) {
+      migrated.push(item);
+      continue;
+    }
+
+    const oldId = item.id;
+    const nextItem = { ...item, id: storageCreateId() };
+    migrated.push(nextItem);
+
+    try {
+      if (useIDB && db) {
+        await dbReplaceId(oldId, nextItem);
+      }
+    } catch (e) {
+      console.warn('[storage] ID migration failed:', e);
+    }
+  }
+
+  if (!useIDB || !db) {
+    lsSave(migrated);
+  }
+
+  return migrated;
 }
 
 // ── 統合ストレージ API（外部から呼ぶ） ─────────────
@@ -100,14 +155,14 @@ async function storageLoad() {
   if (useIDB) {
     try {
       await openDB();
-      return await dbGetAll();
+      return await storageNormalizeIds(await dbGetAll());
     } catch (e) {
       console.warn('[storage] IndexedDB unavailable, using localStorage:', e);
       useIDB = false;
       db = null;
     }
   }
-  return lsLoad();
+  return await storageNormalizeIds(lsLoad());
 }
 
 /**
@@ -115,12 +170,15 @@ async function storageLoad() {
  * item は { text, createdAt } を持つオブジェクト。
  */
 async function storageSave(item) {
+  const id = item.id || storageCreateId();
+  const savedItem = { id, text: item.text, createdAt: item.createdAt };
+
   if (useIDB && db) {
-    return await dbAdd({ text: item.text, createdAt: item.createdAt });
+    await dbAdd(savedItem);
+    return id;
   }
   const arr = lsLoad();
-  const id  = lsNextId(arr);
-  arr.push({ id, text: item.text, createdAt: item.createdAt });
+  arr.push(savedItem);
   lsSave(arr);
   return id;
 }

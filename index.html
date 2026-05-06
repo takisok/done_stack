@@ -9,6 +9,20 @@
 <body>
 
 
+<header class="app-header">
+  <div class="header-inner">
+    <span class="header-title">Done Stack ✨</span>
+    <div class="header-menu">
+      <button class="menu-btn" id="menuBtn">⚙ 設定</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a class="menu-item" href="history.html">活動ログ</a>
+        <button class="menu-item" id="importCsvBtn">CSV を読み込み</button>
+        <button class="menu-item" id="exportCsvBtn">CSV として出力</button>
+      </div>
+    </div>
+  </div>
+</header>
+
 <div class="app">
 
   <!-- ── ステージ（キャラクター + カウンター） ── -->
@@ -24,7 +38,6 @@
     <div class="counter-col">
       <div class="counter-label">達成数</div>
       <div class="counter-num" id="counterNum">0</div>
-      <div class="counter-sub">DONE</div>
     </div>
 
     <!-- 右：メイドさん -->
@@ -43,7 +56,7 @@
     <div class="input-row">
       <input type="text" id="doneInput" class="done-input"
         placeholder="例：企画書を完成させた、30分走った、読書した…" maxlength="200">
-      <button id="doneBtn" class="done-btn">Done! ✓</button>
+      <button id="doneBtn" class="done-btn">✓ Done!</button>
     </div>
     <div class="llm-status" id="llmStatus" data-state="checking">
       <span class="llm-dot"></span><span class="llm-label">LLM 確認中…</span>
@@ -59,6 +72,7 @@
     <div class="done-list" id="doneList">
       <div class="empty-state">まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！</div>
     </div>
+    <div class="pagination" id="pagination" aria-label="Doneリストのページ切り替え"></div>
   </div>
 
 </div><!-- /app -->
@@ -79,6 +93,7 @@
 
 <!-- マイルストーントースト -->
 <div class="toast" id="toast"></div>
+<input type="file" id="importCsvInput" accept=".csv,text/csv" hidden>
 
 <!-- ── スクリプト（依存順） ── -->
 <script src="js/storage.js"></script>

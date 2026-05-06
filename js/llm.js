@@ -13,7 +13,7 @@
 
 const LLM_CONFIG = {
   baseUrl: 'http://localhost:11434',
-  model:   'gemma3:4b',
+  model:   'gemma4:latest',
   timeout: 15000,
 };
 

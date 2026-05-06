@@ -8,6 +8,8 @@
 let items       = [];   // { id, text, createdAt }[]
 let currentCount = 0;
 let editingItem = null;
+let currentPage = 1;
+const ITEMS_PER_PAGE = 20;
 
 // ── 効果音 ──────────────────────────────────────
 
@@ -257,11 +259,143 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        cell += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === ',' && !inQuotes) {
+      row.push(cell);
+      cell = '';
+      continue;
+    }
+
+    if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && next === '\n') i += 1;
+      row.push(cell);
+      if (row.some((value) => value.length > 0)) rows.push(row);
+      row = [];
+      cell = '';
+      continue;
+    }
+
+    cell += char;
+  }
+
+  row.push(cell);
+  if (row.some((value) => value.length > 0)) rows.push(row);
+  return rows;
+}
+
+function normalizeCsvHeader(value) {
+  return String(value ?? '').replace(/^\uFEFF/, '').trim();
+}
+
+function parseDoneCsv(text) {
+  const rows = parseCsv(text);
+  if (rows.length === 0) return [];
+
+  const headers = rows[0].map(normalizeCsvHeader);
+  const idIndex = headers.indexOf('id');
+  const createdAtIndex = headers.indexOf('createdAt');
+  const textIndex = headers.indexOf('text');
+
+  if (idIndex === -1 || createdAtIndex === -1 || textIndex === -1) {
+    throw new Error('CSVのヘッダーは id,createdAt,text の形式にしてください。');
+  }
+
+  return rows.slice(1).map((row, index) => {
+    const id = String(row[idIndex] ?? '').trim();
+    const createdAt = String(row[createdAtIndex] ?? '').trim();
+    const doneText = String(row[textIndex] ?? '').trim();
+
+    if (!id || !createdAt || !doneText) {
+      throw new Error(`${index + 2}行目に空の項目があります。`);
+    }
+
+    if (Number.isNaN(new Date(createdAt).getTime())) {
+      throw new Error(`${index + 2}行目のcreatedAtが日時として読めません。`);
+    }
+
+    return { id, createdAt, text: doneText };
+  });
+}
+
+function getPageCount() {
+  return Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
+}
+
+function clampCurrentPage() {
+  currentPage = Math.min(Math.max(currentPage, 1), getPageCount());
+}
+
+function renderPagination() {
+  const pagination = document.getElementById('pagination');
+  if (!pagination) return;
+
+  const pageCount = getPageCount();
+  pagination.innerHTML = '';
+
+  if (items.length <= ITEMS_PER_PAGE) {
+    pagination.hidden = true;
+    return;
+  }
+
+  pagination.hidden = false;
+
+  const makeButton = (label, page, options = {}) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'page-btn';
+    button.textContent = label;
+    button.disabled = options.disabled || false;
+    if (options.current) button.classList.add('current');
+    button.addEventListener('click', () => {
+      currentPage = page;
+      renderList();
+    });
+    return button;
+  };
+
+  pagination.appendChild(makeButton('前へ', currentPage - 1, { disabled: currentPage === 1 }));
+
+  const info = document.createElement('span');
+  info.className = 'page-info';
+  info.textContent = `${currentPage} / ${pageCount}`;
+  pagination.appendChild(info);
+
+  pagination.appendChild(makeButton('次へ', currentPage + 1, { disabled: currentPage === pageCount }));
+}
+
 function renderList() {
   const list    = document.getElementById('doneList');
   const countEl = document.getElementById('listCount');
 
-  countEl.textContent = items.length > 0 ? `${items.length}件` : '';
+  clampCurrentPage();
+  renderPagination();
+
+  if (items.length === 0) {
+    countEl.textContent = '';
+  } else {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    const end = Math.min(currentPage * ITEMS_PER_PAGE, items.length);
+    countEl.textContent = `${start}-${end} / ${items.length}件`;
+  }
 
   if (items.length === 0) {
     list.innerHTML = '<div class="empty-state">まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！</div>';
@@ -270,13 +404,14 @@ function renderList() {
 
   // 新しい順（追加順の逆）で表示
   const sorted = [...items].reverse();
+  const pageItems = sorted.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   list.innerHTML = '';
 
-  sorted.forEach((item, idx) => {
+  pageItems.forEach((item, idx) => {
     const el  = document.createElement('div');
     el.className    = 'done-item';
     el.dataset.id   = item.id;
-    const num = items.length - idx;
+    const num = items.length - ((currentPage - 1) * ITEMS_PER_PAGE + idx);
 
     el.innerHTML = `
       <div class="item-num">#${num}</div>
@@ -334,6 +469,7 @@ document.getElementById('btnDel').addEventListener('click', async () => {
 
   const delId = editingItem.id;
   items = items.filter(i => i.id !== delId);
+  clampCurrentPage();
 
   animateCounter(items.length);
   renderList();
@@ -352,10 +488,10 @@ async function addDone() {
   if (!text) return;
   playDoneSound();
 
-  const now    = new Date().toISOString();
-  const tempId = -(Date.now());         // DB保存前の一時 ID（負数で本物と衝突しない）
-  const item   = { id: tempId, text, createdAt: now };
+  const now  = new Date().toISOString();
+  const item = { id: storageCreateId(), text, createdAt: now };
   items.push(item);
+  currentPage = 1;
 
   // ── UI を即時更新（DB保存を待たない） ──
   animateCounter(items.length);
@@ -375,14 +511,98 @@ async function addDone() {
 
   // ── バックグラウンドで永続化 ──
   try {
-    const realId = await storageSave(item);
-    item.id = realId;  // 一時 ID を本物に差し替え
+    await storageSave(item);
   } catch (e) {
     console.warn('Storage save failed:', e);
   }
 }
 
 document.getElementById('doneBtn').addEventListener('click', addDone);
+
+// ── ヘッダーメニュー ──────────────────────────────
+document.getElementById('menuBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('menuDropdown').classList.toggle('open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('menuDropdown').classList.remove('open');
+});
+
+document.getElementById('exportCsvBtn').addEventListener('click', () => {
+  document.getElementById('menuDropdown').classList.remove('open');
+  if (items.length === 0) {
+    alert('まだデータがありません。');
+    return;
+  }
+  const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const formatLocalTimestampForFile = (date) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return [
+      date.getFullYear(),
+      pad(date.getMonth() + 1),
+      pad(date.getDate()),
+    ].join('-') + '_' + [
+      pad(date.getHours()),
+      pad(date.getMinutes()),
+      pad(date.getSeconds()),
+    ].join('-');
+  };
+  const rows = [['id', 'createdAt', 'text']];
+  items.forEach((item) => {
+    rows.push([item.id, item.createdAt, item.text].map(escapeCsv));
+  });
+  const csv  = rows.map(r => r.join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `done_stack_${formatLocalTimestampForFile(new Date())}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importCsvBtn').addEventListener('click', () => {
+  document.getElementById('menuDropdown').classList.remove('open');
+  document.getElementById('importCsvInput').click();
+});
+
+document.getElementById('importCsvInput').addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  e.target.value = '';
+  if (!file) return;
+
+  try {
+    const csvText = await file.text();
+    const importedItems = parseDoneCsv(csvText);
+    const existingIds = new Set(items.map((item) => String(item.id)));
+    const newItems = [];
+
+    importedItems.forEach((item) => {
+      const id = String(item.id);
+      if (existingIds.has(id)) return;
+      existingIds.add(id);
+      newItems.push(item);
+    });
+
+    for (const item of newItems) {
+      await storageSave(item);
+      items.push(item);
+    }
+
+    items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    currentPage = 1;
+    animateCounter(items.length);
+    renderList();
+
+    showToast(`${newItems.length}件を取り込みました`);
+    if (newItems.length > 0) {
+      setBubble('maidBubble', `${newItems.length}件の記録を取り込みました。\n履歴が少し厚くなりましたね。`);
+    }
+  } catch (error) {
+    console.warn('CSV import failed:', error);
+    alert(error.message || 'CSVの読み込みに失敗しました。');
+  }
+});
 const doneInput = document.getElementById('doneInput');
 
 doneInput.addEventListener('keydown', (e) => {
@@ -423,13 +643,17 @@ function openMaidStream() {
 
   el.classList.remove('pop');
   void el.offsetWidth;
-  el.classList.add('pop', 'loading');
-  el.textContent = '';
+  el.classList.add('pop');
+  el.innerHTML = '<span class="bubble-spinner"></span>';
   startMaidTalkAnimation();
 
+  let started = false;
   return {
     append(chunk) {
-      el.classList.remove('loading');
+      if (!started) {
+        started = true;
+        el.textContent = '';
+      }
       el.textContent += chunk;
     },
     finish() { stopMaidTalkAnimation(180); },
@@ -478,7 +702,7 @@ async function init() {
   checkLLMAvailable();  // バックグラウンドで確認（結果を待たずに続行）
 
   items = await storageLoad();
-  items.sort((a, b) => a.id - b.id);
+  items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   currentCount = items.length;
   document.getElementById('counterNum').textContent = currentCount;
