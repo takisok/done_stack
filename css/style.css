@@ -69,11 +69,66 @@ textarea {
   font-weight: 700;
   letter-spacing: 0.05em;
   color: var(--text);
+  flex-shrink: 0;
 }
 
 .header-link,
 .header-action {
   text-decoration: none;
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  gap: 10px;
+  min-width: 0;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.header-search-input {
+  width: 220px;
+  min-width: 0;
+  height: 38px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 0;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 0 10px;
+  outline: none;
+}
+
+.header-search-input::placeholder {
+  color: rgba(255,255,255,0.62);
+}
+
+.header-search-input:focus {
+  border-color: rgba(255,255,255,0.42);
+  background: rgba(255,255,255,0.14);
+}
+
+.header-search-btn {
+  min-height: 38px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 0;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 0 12px;
+}
+
+.header-search-btn:hover {
+  border-color: rgba(255,255,255,0.35);
 }
 
 .header-menu {
@@ -127,6 +182,28 @@ textarea {
   text-decoration: none;
 }
 .menu-item:hover { background: var(--surface-1); }
+
+.menu-select-row {
+  align-items: center;
+  cursor: default;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menu-select-row:hover {
+  background: transparent;
+}
+
+.menu-select {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  min-height: 32px;
+  padding: 0 8px;
+}
 
 /* ── メインレイアウト ── */
 .app {
@@ -628,25 +705,6 @@ textarea {
   margin: 0 -24px;
   padding: 8px 28px 0;
   background: #eef0f3;
-}
-
-.drive-status {
-  color: var(--text-muted);
-  font-size: 11px;
-  letter-spacing: 0.03em;
-}
-
-.drive-status[data-state="on"] {
-  color: #2f8d46;
-}
-
-.drive-status[data-state="syncing"] {
-  color: #555555;
-}
-
-.drive-status[data-state="setup"],
-.drive-status[data-state="error"] {
-  color: #9a4c37;
 }
 
 .stage {
@@ -1227,6 +1285,89 @@ textarea {
   padding: 12px 0;
 }
 
+/* ── 検索ページ ── */
+.search-app {
+  padding-top: 26px;
+}
+
+.search-summary {
+  margin-bottom: 16px;
+}
+
+.search-panel {
+  margin-bottom: 16px;
+}
+
+.search-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.search-line-chart {
+  width: 100%;
+  height: 280px;
+}
+
+.search-bar-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar-row time {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.search-bar-row strong {
+  font-size: 12px;
+  text-align: right;
+}
+
+.search-bar-track {
+  height: 10px;
+  background: var(--surface-1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.search-bar-track span {
+  display: block;
+  height: 100%;
+  background: #2f2f2f;
+  border-radius: inherit;
+}
+
+.search-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.search-result-entry {
+  border-top: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.search-result-entry:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.search-result-entry p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.search-result-entry mark {
+  background: #fff2a8;
+  border-radius: 3px;
+  color: var(--text);
+  padding: 0 2px;
+}
+
 /* ── LLM ステータス ── */
 .llm-status {
   display: flex;
@@ -1268,6 +1409,27 @@ textarea {
 
   .header-title {
     font-size: 19px;
+  }
+
+  .header-tools {
+    gap: 6px;
+  }
+
+  .header-search {
+    flex: 1;
+    gap: 4px;
+  }
+
+  .header-search-input {
+    width: 100%;
+    height: 36px;
+    font-size: 16px;
+    padding: 0 8px;
+  }
+
+  .header-search-btn {
+    min-height: 36px;
+    padding: 0 9px;
   }
 
   .app {
@@ -1395,6 +1557,15 @@ textarea {
 
   .history-summary {
     padding: 14px;
+  }
+
+  .search-bar-row {
+    grid-template-columns: 1fr 58px;
+    gap: 6px;
+  }
+
+  .search-bar-row time {
+    grid-column: 1 / -1;
   }
 
   .summary-main {

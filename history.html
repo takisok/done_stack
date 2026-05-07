@@ -18,7 +18,7 @@
 <header class="app-header">
   <div class="header-inner">
     <a class="header-title header-link" href="index.html">Done Stack</a>
-    <a class="menu-btn header-action" href="index.html">入力へ戻る</a>
+    <a class="menu-btn header-action" href="index.html" data-i18n="backToInput">入力へ戻る</a>
   </div>
 </header>
 
@@ -26,31 +26,31 @@
   <section class="history-hero">
     <div>
       <div class="history-kicker">Activity Log</div>
-      <h1 class="history-title" id="historyMonthTitle">活動ログ</h1>
+      <h1 class="history-title" id="historyMonthTitle" data-i18n="activityLog">活動ログ</h1>
     </div>
     <div class="month-nav" aria-label="月の切り替え">
-      <button class="month-btn" id="prevMonthBtn" type="button" aria-label="前の月">‹</button>
-      <button class="month-btn" id="todayMonthBtn" type="button">今月</button>
-      <button class="month-btn" id="nextMonthBtn" type="button" aria-label="次の月">›</button>
+      <button class="month-btn" id="prevMonthBtn" type="button" aria-label="前の月" data-i18n-aria-label="prevMonth">‹</button>
+      <button class="month-btn" id="todayMonthBtn" type="button" data-i18n="thisMonth">今月</button>
+      <button class="month-btn" id="nextMonthBtn" type="button" aria-label="次の月" data-i18n-aria-label="nextMonth">›</button>
     </div>
   </section>
 
   <section class="history-summary" aria-label="月間サマリー">
     <div class="summary-main">
-      <div class="summary-label">Monthly Done</div>
+      <div class="summary-label" data-i18n="monthlyDone">Monthly Done</div>
       <div class="summary-number" id="monthTotal">0</div>
     </div>
     <div class="summary-grid">
       <div class="summary-item">
-        <span class="summary-item-label">活動日</span>
+        <span class="summary-item-label" data-i18n="activeDays">活動日</span>
         <strong id="activeDays">0日</strong>
       </div>
       <div class="summary-item">
-        <span class="summary-item-label">最多の日</span>
+        <span class="summary-item-label" data-i18n="bestDay">最多の日</span>
         <strong id="bestDay">-</strong>
       </div>
       <div class="summary-item">
-        <span class="summary-item-label">主な活動</span>
+        <span class="summary-item-label" data-i18n="topCategory">主な活動</span>
         <strong id="topCategory">-</strong>
       </div>
     </div>
@@ -58,8 +58,8 @@
 
   <section class="history-panel contribution-panel" aria-label="年間活動グラフ">
     <div class="panel-header">
-      <h2>活動の草</h2>
-      <span id="contributionRange">直近1年</span>
+      <h2 data-i18n="contribution">活動の草</h2>
+      <span id="contributionRange" data-i18n="recentYear">直近1年</span>
     </div>
     <div class="contribution-wrap">
       <div class="contribution-week-labels" aria-hidden="true">
@@ -71,19 +71,19 @@
       </div>
     </div>
     <div class="contribution-legend" aria-hidden="true">
-      <span>少ない</span>
+      <span data-i18n="less">少ない</span>
       <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i>
-      <span>多い</span>
+      <span data-i18n="more">多い</span>
     </div>
   </section>
 
   <section class="history-layout">
     <section class="history-panel month-record-panel">
       <div class="panel-header">
-        <h2 id="monthRecordTitle">この月の記録</h2>
+        <h2 id="monthRecordTitle" data-i18n="thisMonthRecords">この月の記録</h2>
         <span id="monthRecordCount">0 Done</span>
       </div>
-      <p class="day-summary" id="monthRecordSummary">この月に積み上げた活動を日付ごとに表示します。</p>
+      <p class="day-summary" id="monthRecordSummary" data-i18n="monthRecordSummary">この月に積み上げた活動を日付ごとに表示します。</p>
       <div class="month-record-list" id="monthRecordList"></div>
     </section>
   </section>
@@ -91,16 +91,16 @@
   <section class="monthly-scope">
     <div class="scope-header">
       <div>
-        <div class="history-kicker">Monthly Insights</div>
-        <h2>この月の傾向</h2>
+        <div class="history-kicker" data-i18n="monthlyInsights">Monthly Insights</div>
+        <h2 data-i18n="thisMonthTrends">この月の傾向</h2>
       </div>
-      <span id="monthlyScopeLabel">月間集計</span>
+      <span id="monthlyScopeLabel" data-i18n="monthlyScope">月間集計</span>
     </div>
 
     <div class="history-insights">
       <div class="history-panel">
         <div class="panel-header">
-          <h2>カテゴリ</h2>
+          <h2 data-i18n="category">カテゴリ</h2>
           <span id="categoryTotal">0件</span>
         </div>
         <div class="category-list" id="categoryList"></div>
@@ -108,15 +108,15 @@
 
       <div class="history-panel">
         <div class="panel-header">
-          <h2>よく出た言葉</h2>
-          <span>上位</span>
+          <h2 data-i18n="keywords">よく出た言葉</h2>
+          <span data-i18n="top">上位</span>
         </div>
         <div class="keyword-list" id="keywordList"></div>
       </div>
 
       <div class="history-panel">
         <div class="panel-header">
-          <h2>月間ハイライト</h2>
+          <h2 data-i18n="highlights">月間ハイライト</h2>
           <span id="highlightCount">0件</span>
         </div>
         <div class="highlight-list" id="highlightList"></div>
@@ -126,6 +126,7 @@
 </main>
 
 <script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/pwa.js"></script>
 <script src="js/history.js"></script>
 

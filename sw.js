@@ -1,15 +1,18 @@
-const CACHE_NAME = 'done-stack-pwa-v3';
+const CACHE_NAME = 'done-stack-pwa-v7';
 const APP_SHELL = [
   './',
   './index.html',
   './history.html',
+  './search.html',
   './manifest.json',
   './css/style.css',
   './js/app.js',
   './js/drive-sync.js',
   './js/history.js',
+  './js/i18n.js',
   './js/llm.js',
   './js/pwa.js',
+  './js/search.js',
   './js/speech.js',
   './js/stars.js',
   './js/storage.js',

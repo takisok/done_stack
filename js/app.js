@@ -10,6 +10,50 @@ let currentCount = 0;
 let editingItem = null;
 let currentPage = 1;
 const ITEMS_PER_PAGE = 20;
+const DONE_PLACEHOLDERS = {
+  ja: [
+    '何かしようと思った',
+    'ゴミを捨てた',
+    '体重を測った',
+    '教科書を開いた',
+    '机の上を片付けた',
+    '水を一杯飲んだ',
+    'メールを返した',
+    '靴をそろえた',
+    '5秒だけ作業した',
+    'カレンダーに予定を入れた',
+    '洗濯物をかごに入れた',
+    '本を1ページ読んだ',
+    'スマホを置いた',
+    '今日が何日か確認した',
+    'やる気を探した',
+    'やる気がないことに気づいた',
+    '洗濯物の存在を認めた',
+    '深呼吸した',
+    '今日も人間をやっている',
+  ],
+  en: [
+    'thought about doing something',
+    'took out the trash',
+    'checked my weight',
+    'opened a textbook',
+    'cleared a tiny bit of my desk',
+    'drank a glass of water',
+    'replied to one message',
+    'lined up my shoes',
+    'worked for 5 seconds',
+    'put a plan on the calendar',
+    'put laundry in the basket',
+    'read one page',
+    'put down my phone',
+    'checked what day it is',
+    'looked for motivation',
+    'noticed I had no motivation',
+    'acknowledged the laundry exists',
+    'took a deep breath',
+    'continued being human today',
+  ],
+};
 
 // ── 効果音 ──────────────────────────────────────
 
@@ -270,8 +314,26 @@ function getActiveItems() {
   return [...items];
 }
 
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function scheduleDriveSync() {
   window.doneStackDrive?.scheduleSync?.();
+}
+
+function setRandomDonePlaceholder() {
+  const input = document.getElementById('doneInput');
+  if (!input) return;
+  const lang = window.I18N?.getLanguage?.() || 'ja';
+  const pool = DONE_PLACEHOLDERS[lang] || DONE_PLACEHOLDERS.ja;
+  const count = 2 + Math.floor(Math.random() * 2);
+  const examples = [...pool]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+  input.placeholder = lang === 'en'
+    ? `e.g. ${examples.join(', ')}`
+    : `例：${examples.join('、')}`;
 }
 
 function checkMilestone(n) {
@@ -352,7 +414,7 @@ function parseDoneCsv(text) {
   const textIndex = headers.indexOf('text');
 
   if (idIndex === -1 || createdAtIndex === -1 || textIndex === -1) {
-    throw new Error('CSVのヘッダーは id,createdAt,text の形式にしてください。');
+    throw new Error(I18N.t('csvHeaderError'));
   }
 
   return rows.slice(1).map((row, index) => {
@@ -361,11 +423,11 @@ function parseDoneCsv(text) {
     const doneText = String(row[textIndex] ?? '').trim();
 
     if (!id || !createdAt || !doneText) {
-      throw new Error(`${index + 2}行目に空の項目があります。`);
+      throw new Error(I18N.t('csvEmptyError', { line: index + 2 }));
     }
 
     if (Number.isNaN(new Date(createdAt).getTime())) {
-      throw new Error(`${index + 2}行目のcreatedAtが日時として読めません。`);
+      throw new Error(I18N.t('csvDateError', { line: index + 2 }));
     }
 
     return { id, createdAt, text: doneText };
@@ -408,14 +470,14 @@ function renderPagination() {
     return button;
   };
 
-  pagination.appendChild(makeButton('前へ', currentPage - 1, { disabled: currentPage === 1 }));
+  pagination.appendChild(makeButton(I18N.t('prev'), currentPage - 1, { disabled: currentPage === 1 }));
 
   const info = document.createElement('span');
   info.className = 'page-info';
-  info.textContent = `${currentPage} / ${pageCount}`;
+  info.textContent = I18N.t('pageInfo', { current: currentPage, total: pageCount });
   pagination.appendChild(info);
 
-  pagination.appendChild(makeButton('次へ', currentPage + 1, { disabled: currentPage === pageCount }));
+  pagination.appendChild(makeButton(I18N.t('next'), currentPage + 1, { disabled: currentPage === pageCount }));
 }
 
 function renderList() {
@@ -430,11 +492,13 @@ function renderList() {
   } else {
     const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
     const end = Math.min(currentPage * ITEMS_PER_PAGE, items.length);
-    countEl.textContent = `${start}-${end} / ${items.length}件`;
+    countEl.textContent = I18N.getLanguage() === 'en'
+      ? `${start}-${end} / ${items.length}`
+      : `${start}-${end} / ${items.length}件`;
   }
 
   if (items.length === 0) {
-    list.innerHTML = '<div class="empty-state">まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！</div>';
+    list.innerHTML = `<div class="empty-state">${I18N.t('emptyList')}</div>`;
     return;
   }
 
@@ -486,7 +550,7 @@ document.getElementById('modalBg').addEventListener('click', (e) => {
 document.getElementById('btnSave').addEventListener('click', async () => {
   if (!editingItem) return;
   const newText = document.getElementById('modalInput').value.trim();
-  if (!newText) { alert('テキストを入力してください'); return; }
+  if (!newText) { alert(I18N.t('textRequired')); return; }
 
   const updatedItem = { ...editingItem, text: newText, updatedAt: new Date().toISOString() };
   const idx = items.findIndex(i => i.id === updatedItem.id);
@@ -494,7 +558,9 @@ document.getElementById('btnSave').addEventListener('click', async () => {
 
   renderList();
   closeModal();
-  setBubble('maidBubble', '修正されましたね！\n完璧主義ですわ✨');
+  setBubble('maidBubble', I18N.getLanguage() === 'en'
+    ? 'Edited beautifully!\nA touch of perfectionism suits you ✨'
+    : '修正されましたね！\n完璧主義ですわ✨');
 
   try {
     await storageUpdate(updatedItem);
@@ -504,7 +570,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
 
 document.getElementById('btnDel').addEventListener('click', async () => {
   if (!editingItem) return;
-  if (!confirm('この記録を削除しますか？')) return;
+  if (!confirm(I18N.t('confirmDelete'))) return;
 
   const delId = editingItem.id;
   items = items.filter(i => i.id !== delId);
@@ -513,8 +579,12 @@ document.getElementById('btnDel').addEventListener('click', async () => {
   animateCounter(items.length);
   renderList();
   closeModal();
-  setBubble('maidBubble',  '削除しました…\nでもまた積み上げましょう！');
-  setBubble('mascotBubble', '消えた。まあ、そういう日もある。');
+  setBubble('maidBubble', I18N.getLanguage() === 'en'
+    ? 'Deleted.\nLet us stack something new again!'
+    : '削除しました…\nでもまた積み上げましょう！');
+  setBubble('mascotBubble', I18N.getLanguage() === 'en'
+    ? 'Gone. Well, days do that.'
+    : '消えた。まあ、そういう日もある。');
 
   try {
     await storageDelete(delId);
@@ -526,8 +596,7 @@ document.getElementById('btnDel').addEventListener('click', async () => {
 
 async function addDone() {
   const input = document.getElementById('doneInput');
-  const text  = input.value.trim();
-  if (!text) return;
+  const text  = input.value.trim() || I18N.t('blankDone');
   playDoneSound();
 
   const now  = new Date().toISOString();
@@ -544,6 +613,7 @@ async function addDone() {
   spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
   input.value = '';
+  setRandomDonePlaceholder();
   renderList();
   setTimeout(() => {
     const first = document.querySelector('.done-item');
@@ -567,6 +637,9 @@ document.getElementById('menuBtn').addEventListener('click', e => {
   e.stopPropagation();
   document.getElementById('menuDropdown').classList.toggle('open');
 });
+document.getElementById('menuDropdown').addEventListener('click', e => {
+  e.stopPropagation();
+});
 document.addEventListener('click', () => {
   document.getElementById('menuDropdown').classList.remove('open');
 });
@@ -574,7 +647,7 @@ document.addEventListener('click', () => {
 document.getElementById('exportCsvBtn').addEventListener('click', () => {
   document.getElementById('menuDropdown').classList.remove('open');
   if (items.length === 0) {
-    alert('まだデータがありません。');
+    alert(I18N.t('noData'));
     return;
   }
   const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
@@ -639,13 +712,15 @@ document.getElementById('importCsvInput').addEventListener('change', async (e) =
     animateCounter(items.length);
     renderList();
 
-    showToast(`${newItems.length}件を取り込みました`);
+    showToast(I18N.t('importDone', { count: newItems.length }));
     if (newItems.length > 0) {
-      setBubble('maidBubble', `${newItems.length}件の記録を取り込みました。\n履歴が少し厚くなりましたね。`);
+      setBubble('maidBubble', I18N.getLanguage() === 'en'
+        ? `Imported ${newItems.length} entries.\nYour history has a little more weight now.`
+        : `${newItems.length}件の記録を取り込みました。\n履歴が少し厚くなりましたね。`);
     }
   } catch (error) {
     console.warn('CSV import failed:', error);
-    alert(error.message || 'CSVの読み込みに失敗しました。');
+    alert(error.message || I18N.t('csvImportFailed'));
   }
 });
 
@@ -655,7 +730,6 @@ if (driveSyncBtn && window.doneStackDrive) {
   window.doneStackDrive.init({
     getItems: getActiveItems,
     applyItems: applySyncedItems,
-    statusEl: document.getElementById('driveStatus'),
     showToast,
   });
 
@@ -766,7 +840,16 @@ async function respondWithCharacters(doneText) {
 // ── 初期化 ───────────────────────────────────────
 
 async function init() {
+  I18N.initControls();
+  window.addEventListener('done-stack-language-change', () => {
+    const llmState = document.getElementById('llmStatus')?.dataset.state;
+    if (llmState && typeof setLLMStatus === 'function') setLLMStatus(llmState);
+    setRandomDonePlaceholder();
+    renderList();
+  });
+
   checkLLMAvailable();  // バックグラウンドで確認（結果を待たずに続行）
+  setRandomDonePlaceholder();
 
   items = await storageLoad();
   items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -777,16 +860,26 @@ async function init() {
 
   // ウェルカムセリフ
   if (items.length === 0) {
-    setBubble('maidBubble',   '初めまして！\n一緒に積み上げましょう！');
-    setBubble('mascotBubble', '…キーたん。まあ、よろしく。');
+    setBubble('maidBubble', I18N.getLanguage() === 'en'
+      ? 'Nice to meet you!\nLet us start stacking together!'
+      : '初めまして！\n一緒に積み上げましょう！');
+    setBubble('mascotBubble', I18N.getLanguage() === 'en'
+      ? '...Keytan. Fine, hello.'
+      : '…キーたん。まあ、よろしく。');
   } else {
     const n = items.length;
-    setBubble('maidBubble',   `おかえりなさい！\nもう${n}個も積み上げましたね✨`);
-    setBubble('mascotBubble', n >= 10 ? 'また来たの。まあ、見てるけど。' : '続けてるね。ちょっとだけ感心。');
+    setBubble('maidBubble', I18N.getLanguage() === 'en'
+      ? `Welcome back!\nYou have already stacked ${n} Done entries ✨`
+      : `おかえりなさい！\nもう${n}個も積み上げましたね✨`);
+    setBubble('mascotBubble', I18N.getLanguage() === 'en'
+      ? (n >= 10 ? 'Back again. Fine, I am watching.' : 'Still continuing. Mildly impressive.')
+      : (n >= 10 ? 'また来たの。まあ、見てるけど。' : '続けてるね。ちょっとだけ感心。'));
   }
 }
 
 init().catch(e => {
   console.error('[init]', e);
-  document.getElementById('maidBubble').textContent = 'データの読み込みに失敗しました…';
+  document.getElementById('maidBubble').textContent = I18N.getLanguage() === 'en'
+    ? 'Failed to load data...'
+    : 'データの読み込みに失敗しました…';
 });

@@ -71,7 +71,9 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
     const clientId = getClientId();
     if (!clientId) {
       setStatus('setup', 'Drive 設定待ち');
-      throw new Error('Google Drive 同期には Google OAuth クライアントIDの設定が必要です。');
+      throw new Error(I18N.getLanguage() === 'en'
+        ? 'Google Drive sync requires a Google OAuth client ID.'
+        : 'Google Drive 同期には Google OAuth クライアントIDの設定が必要です。');
     }
 
     if (!gapiReady) {
@@ -111,13 +113,13 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
         };
         tokenClient.requestAccessToken({ prompt });
       });
-      if (!silent) hooks.showToast('Google Drive に接続しました');
+      if (!silent) hooks.showToast(I18N.getLanguage() === 'en' ? 'Connected to Google Drive' : 'Google Drive に接続しました');
       return true;
     } catch (error) {
       console.warn('[drive-sync] sign in failed:', error);
       if (!silent) {
         setStatus('error', 'Drive 接続不可');
-        alert(error.message || 'Google Drive への接続に失敗しました。');
+        alert(error.message || (I18N.getLanguage() === 'en' ? 'Failed to connect to Google Drive.' : 'Google Drive への接続に失敗しました。'));
       }
       return false;
     }
@@ -144,7 +146,7 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
 
   async function uploadPayload(fileId, payload) {
     const accessToken = gapi.client.getToken()?.access_token;
-    if (!accessToken) throw new Error('Google Drive のアクセストークンがありません。');
+    if (!accessToken) throw new Error(I18N.getLanguage() === 'en' ? 'Google Drive access token is missing.' : 'Google Drive のアクセストークンがありません。');
 
     const metadata = {
       name: DRIVE_FILE_NAME,
@@ -183,7 +185,7 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
     });
 
     if (!response.ok) {
-      throw new Error(`Drive 保存に失敗しました (${response.status})`);
+      throw new Error(I18N.getLanguage() === 'en' ? `Drive save failed (${response.status})` : `Drive 保存に失敗しました (${response.status})`);
     }
   }
 
@@ -243,7 +245,7 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
         const connected = await signIn({ prompt: interactive && !hasConnectionHint() ? 'consent' : '', silent });
         if (!connected) return;
       }
-      setStatus('syncing', 'Drive 同期中...');
+      setStatus('syncing', I18N.getLanguage() === 'en' ? 'Syncing Drive...' : 'Drive 同期中...');
 
       const file = await findDriveFile();
       const remotePayload = await readRemotePayload(file?.id);
@@ -253,14 +255,14 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       hooks.applyItems(mergedPayload.items);
       await uploadPayload(file?.id, mergedPayload);
 
-      setStatus('on', 'Drive 同期済み');
-      if (!silent) hooks.showToast('Google Drive と同期しました');
+      setStatus('on', I18N.getLanguage() === 'en' ? 'Drive synced' : 'Drive 同期済み');
+      if (!silent) hooks.showToast(I18N.getLanguage() === 'en' ? 'Synced with Google Drive' : 'Google Drive と同期しました');
       return true;
     } catch (error) {
       console.warn('[drive-sync] sync failed:', error);
       if (!silent) {
         setStatus('error', 'Drive 同期失敗');
-        alert(error.message || 'Google Drive との同期に失敗しました。');
+        alert(error.message || (I18N.getLanguage() === 'en' ? 'Failed to sync with Google Drive.' : 'Google Drive との同期に失敗しました。'));
       }
       return false;
     } finally {
@@ -287,7 +289,6 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
         setStatus('setup', 'Drive 設定待ち');
         return;
       }
-      setStatus(hasConnectionHint() ? 'off' : 'off', hasConnectionHint() ? 'Drive 再同期待ち' : 'Drive 未接続');
     },
     signIn,
     sync,

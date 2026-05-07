@@ -19,13 +19,26 @@
 <header class="app-header">
   <div class="header-inner">
     <span class="header-title">Done Stack ✨</span>
-    <div class="header-menu">
-      <button class="menu-btn" id="menuBtn">⚙ 設定</button>
-      <div class="menu-dropdown" id="menuDropdown">
-        <a class="menu-item" href="history.html">活動ログ</a>
-        <button class="menu-item" id="driveSyncBtn">Google Drive と同期</button>
-        <button class="menu-item" id="importCsvBtn">CSV を読み込み</button>
-        <button class="menu-item" id="exportCsvBtn">CSV として出力</button>
+    <div class="header-tools">
+      <form class="header-search" action="search.html" method="get" role="search">
+        <input class="header-search-input" type="search" name="q" placeholder="検索" aria-label="Doneを検索" data-i18n-placeholder="search" data-i18n-aria-label="searchAria">
+        <button class="header-search-btn" type="submit" data-i18n="search">検索</button>
+      </form>
+      <div class="header-menu">
+        <button class="menu-btn" id="menuBtn" data-i18n="settings">⚙ 設定</button>
+        <div class="menu-dropdown" id="menuDropdown">
+          <label class="menu-item menu-select-row">
+            <span data-i18n="language">言語</span>
+            <select class="menu-select" data-language-select>
+              <option value="ja" data-i18n="languageJa">日本語</option>
+              <option value="en" data-i18n="languageEn">English</option>
+            </select>
+          </label>
+          <a class="menu-item" href="history.html" data-i18n="activityLog">活動ログ</a>
+          <button class="menu-item" id="driveSyncBtn" data-i18n="syncDrive">Google Drive と同期</button>
+          <button class="menu-item" id="importCsvBtn" data-i18n="importCsv">CSV を読み込み</button>
+          <button class="menu-item" id="exportCsvBtn" data-i18n="exportCsv">CSV として出力</button>
+        </div>
       </div>
     </div>
   </div>
@@ -34,9 +47,8 @@
 <div class="app">
   <div class="top-status-row">
     <div class="llm-status" id="llmStatus" data-state="checking">
-      <span class="llm-dot"></span><span class="llm-label">LLM 確認中…</span>
+      <span class="llm-dot"></span><span class="llm-label" data-i18n="llmChecking">LLM 確認中…</span>
     </div>
-    <div class="drive-status" id="driveStatus" data-state="off">Drive 未接続</div>
   </div>
 
   <!-- ── ステージ（キャラクター + カウンター） ── -->
@@ -50,7 +62,7 @@
 
     <!-- 中央：カウンター -->
     <div class="counter-col">
-      <div class="counter-label">達成数</div>
+      <div class="counter-label" data-i18n="countLabel">達成数</div>
       <div class="counter-num" id="counterNum">0</div>
     </div>
 
@@ -66,22 +78,22 @@
 
   <!-- ── 入力エリア ── -->
   <div class="input-wrap">
-    <div class="input-hint">▸ 今日達成したことを入力</div>
+    <div class="input-hint" data-i18n="inputHint">▸ 今日達成したことを入力</div>
     <div class="input-row">
       <input type="text" id="doneInput" class="done-input"
-        placeholder="例：企画書を完成させた、30分走った、読書した…" maxlength="200">
-      <button id="doneBtn" class="done-btn">✓ Done!</button>
+        placeholder="例：スマホを置いた、深呼吸した" maxlength="200">
+      <button id="doneBtn" class="done-btn" data-i18n="doneButton">✓ Done!</button>
     </div>
   </div>
 
   <!-- ── Doneリスト ── -->
   <div class="list-wrap">
     <div class="list-header">
-      <div class="list-title">▸ 積み上げリスト</div>
+      <div class="list-title" data-i18n="listTitle">▸ 積み上げリスト</div>
       <div class="list-count" id="listCount"></div>
     </div>
     <div class="done-list" id="doneList">
-      <div class="empty-state">まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！</div>
+      <div class="empty-state" data-i18n="emptyList">まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！</div>
     </div>
     <div class="pagination" id="pagination" aria-label="Doneリストのページ切り替え"></div>
   </div>
@@ -91,13 +103,13 @@
 <!-- ── 編集モーダル ── -->
 <div class="modal-bg" id="modalBg">
   <div class="modal">
-    <div class="modal-title">▸ 編集</div>
+    <div class="modal-title" data-i18n="edit">▸ 編集</div>
     <div class="modal-date" id="modalDate"></div>
     <textarea class="modal-textarea" id="modalInput" rows="3"></textarea>
     <div class="modal-btns">
-      <button class="btn-del"    id="btnDel">削除</button>
-      <button class="btn-cancel" id="btnCancel">キャンセル</button>
-      <button class="btn-save"   id="btnSave">保存</button>
+      <button class="btn-del"    id="btnDel" data-i18n="delete">削除</button>
+      <button class="btn-cancel" id="btnCancel" data-i18n="cancel">キャンセル</button>
+      <button class="btn-save"   id="btnSave" data-i18n="save">保存</button>
     </div>
   </div>
 </div>
@@ -108,6 +120,7 @@
 
 <!-- ── スクリプト（依存順） ── -->
 <script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/speech.js"></script>
 <script src="js/llm.js"></script>
 <script src="js/pwa.js"></script>

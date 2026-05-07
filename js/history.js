@@ -45,15 +45,15 @@ function parseItemDate(item) {
 }
 
 function formatMonth(date) {
-  return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' });
+  return date.toLocaleDateString(I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP', { year: 'numeric', month: 'long' });
 }
 
 function formatDay(date) {
-  return date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+  return date.toLocaleDateString(I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
 }
 
 function formatTime(date) {
-  return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString(I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP', { hour: '2-digit', minute: '2-digit' });
 }
 
 function escapeHtml(text) {
@@ -148,12 +148,16 @@ function renderSummary(monthItems, grouped) {
 
   document.getElementById('historyMonthTitle').textContent = formatMonth(currentMonth);
   document.getElementById('monthTotal').textContent = total;
-  document.getElementById('activeDays').textContent = `${activeDays}日`;
-  document.getElementById('bestDay').textContent = best ? `${Number(best[0].slice(-2))}日 (${best[1].length})` : '-';
+  document.getElementById('activeDays').textContent = I18N.t('dayUnit', { count: activeDays });
+  document.getElementById('bestDay').textContent = best
+    ? (I18N.getLanguage() === 'en' ? `${best[0]} (${best[1].length})` : `${Number(best[0].slice(-2))}日 (${best[1].length})`)
+    : '-';
   document.getElementById('topCategory').textContent = categories[0] ? categories[0].name : '-';
 
   const monthlyScopeLabel = document.getElementById('monthlyScopeLabel');
-  if (monthlyScopeLabel) monthlyScopeLabel.textContent = `${formatMonth(currentMonth)}の集計`;
+  if (monthlyScopeLabel) monthlyScopeLabel.textContent = I18N.getLanguage() === 'en'
+    ? `${formatMonth(currentMonth)} summary`
+    : `${formatMonth(currentMonth)}の集計`;
 }
 
 function renderContributionGraph() {
@@ -208,7 +212,7 @@ function renderContributionGraph() {
 
     if (months && cursor.getDate() <= 7 && cursor.getMonth() !== lastMonth) {
       const label = document.createElement('span');
-      label.textContent = cursor.toLocaleDateString('ja-JP', { month: 'short' });
+      label.textContent = cursor.toLocaleDateString(I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP', { month: 'short' });
       label.style.gridColumn = String(column);
       months.appendChild(label);
       lastMonth = cursor.getMonth();
@@ -219,7 +223,7 @@ function renderContributionGraph() {
   }
 
   const range = document.getElementById('contributionRange');
-  if (range) range.textContent = 'クリックした日を含む月へ移動';
+  if (range) range.textContent = I18N.getLanguage() === 'en' ? 'Click a day to open its month' : 'クリックした日を含む月へ移動';
 }
 
 function renderMonthRecords(monthItems) {
@@ -229,11 +233,11 @@ function renderMonthRecords(monthItems) {
 
   count.textContent = `${monthItems.length} Done`;
   summary.textContent = monthItems.length
-    ? `${formatMonth(currentMonth)}の記録を日付ごとに並べています。`
-    : 'この月の記録はまだありません。';
+    ? (I18N.getLanguage() === 'en' ? `Done entries in ${formatMonth(currentMonth)} are grouped by date.` : `${formatMonth(currentMonth)}の記録を日付ごとに並べています。`)
+    : (I18N.getLanguage() === 'en' ? 'There are no entries this month.' : 'この月の記録はまだありません。');
 
   if (!monthItems.length) {
-    list.innerHTML = '<div class="history-empty">この月のDoneはありません。</div>';
+    list.innerHTML = `<div class="history-empty">${I18N.getLanguage() === 'en' ? 'No Done entries this month.' : 'この月のDoneはありません。'}</div>`;
     return;
   }
 
@@ -270,10 +274,10 @@ function renderMonthRecords(monthItems) {
 function renderCategories(monthItems) {
   const categories = countCategories(monthItems);
   const total = Math.max(1, monthItems.length);
-  document.getElementById('categoryTotal').textContent = `${monthItems.length}件`;
+  document.getElementById('categoryTotal').textContent = I18N.t('itemUnit', { count: monthItems.length });
 
   if (!categories.length) {
-    document.getElementById('categoryList').innerHTML = '<div class="history-empty">カテゴリはまだありません。</div>';
+    document.getElementById('categoryList').innerHTML = `<div class="history-empty">${I18N.getLanguage() === 'en' ? 'No categories yet.' : 'カテゴリはまだありません。'}</div>`;
     return;
   }
 
@@ -294,7 +298,7 @@ function renderCategories(monthItems) {
 function renderKeywords(monthItems) {
   const keywords = extractKeywords(monthItems);
   if (!keywords.length) {
-    document.getElementById('keywordList').innerHTML = '<div class="history-empty">言葉が集まると表示されます。</div>';
+    document.getElementById('keywordList').innerHTML = `<div class="history-empty">${I18N.getLanguage() === 'en' ? 'Frequent words will appear here.' : '言葉が集まると表示されます。'}</div>`;
     return;
   }
   document.getElementById('keywordList').innerHTML = keywords.map((keyword) =>
@@ -306,10 +310,10 @@ function renderHighlights(monthItems) {
   const sorted = [...monthItems]
     .sort((a, b) => String(b.text).length - String(a.text).length || parseItemDate(b) - parseItemDate(a))
     .slice(0, 5);
-  document.getElementById('highlightCount').textContent = `${sorted.length}件`;
+  document.getElementById('highlightCount').textContent = I18N.t('itemUnit', { count: sorted.length });
 
   if (!sorted.length) {
-    document.getElementById('highlightList').innerHTML = '<div class="history-empty">今月の記録はまだありません。</div>';
+    document.getElementById('highlightList').innerHTML = `<div class="history-empty">${I18N.getLanguage() === 'en' ? 'No entries this month yet.' : '今月の記録はまだありません。'}</div>`;
     return;
   }
 
@@ -349,6 +353,7 @@ function moveMonth(delta) {
 }
 
 async function initHistory() {
+  I18N.initControls();
   historyItems = await storageLoad();
   historyItems.sort((a, b) => parseItemDate(a) - parseItemDate(b));
   const latest = historyItems.at(-1);
@@ -363,6 +368,7 @@ async function initHistory() {
   });
 
   render();
+  window.addEventListener('done-stack-language-change', render);
 }
 
 initHistory().catch((error) => {
