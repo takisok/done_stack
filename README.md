@@ -1,74 +1,58 @@
-# Done Stack ✨ 積み上げろ！
+# Done Stack
 
-今日達成したことを記録して積み上げていくモチベーション管理アプリです。
-メイドキャラクターとマスコットが達成を一緒に喜んでくれます。
+Done Stack は、今日できたことを記録して積み上げていくローカル用のメモアプリです。
+メイドさんとマスコットが、記録した達成を一緒に喜んでくれます。
 
-## 機能
+## 主な機能
 
-- 達成したことをテキストで記録
+- 達成したことの記録
 - 達成数カウンター
-- キャラクターによるリアクション（ローカルLLM連携時はAI生成セリフ）
-- 記録の編集・削除
-- CSVエクスポート
-- データはブラウザのIndexedDB（またはlocalStorage）に保存
+- Done リストの編集・削除
+- 20 件ごとのページネーション
+- 活動ログページでの月別ふりかえり
+- CSV エクスポート / インポート
+- ローカル LLM 接続時のキャラクターリアクション
+- LLM 未接続時の静的セリフ
 
 ## 使い方
 
-### LLMなしで使う場合
+`index.html` をブラウザで開くと使えます。
+データはブラウザ内に保存されます。
 
-`index.html` をブラウザで開くだけで動作します。キャラクターのセリフは静的なものになります。
+活動ログを見たい場合は、画面内のリンクまたは `history.html` を開いてください。
 
-### LLMありで使う場合（Ollamaを使用）
+## LLM なしで使う
 
-1. **初回セットアップ**（Ollamaとモデルのインストール）
+追加の準備は不要です。
+キャラクターのセリフは、あらかじめ用意された静的なものになります。
 
-   ```
-   setup_ollama.bat を実行
-   ```
+## LLM ありで使う
 
-2. **Ollama サーバーの起動**（毎回必要）
+ローカルの Ollama を使います。
 
-   ```
-   start_ollama.bat を実行
-   ```
+1. 初回だけ `setup_ollama.bat` を実行します。
+2. 使う前に `start_ollama.bat` を実行します。
+3. `index.html` をブラウザで開きます。
 
-3. `index.html` をブラウザで開く
+画面上部に LLM 接続状態が表示されます。
 
-画面下部に「LLM 接続中 · gemma4:latest」と表示されれば接続完了です。
+## データについて
 
-## 構成
+記録データはブラウザの IndexedDB に保存されます。
+IndexedDB が使えない場合は localStorage に保存します。
 
-```
-done_stack/
-├── index.html
-├── css/
-│   └── style.css
-├── js/
-│   ├── app.js        # メインロジック
-│   ├── llm.js        # Ollama連携
-│   ├── speech.js     # 静的セリフ
-│   ├── storage.js    # データ保存（IndexedDB / localStorage）
-│   └── stars.js      # パーティクルエフェクト
-├── img/
-│   ├── maid/         # メイドキャラクター画像
-│   └── mascot/       # マスコット画像
-├── setup_ollama.bat  # Ollamaセットアップ
-└── start_ollama.bat  # Ollama起動（CORS設定付き）
+CSV は次の形式で出力・読み込みします。
+
+```csv
+id,createdAt,text
+"uuid","2026-05-05T20:47:39.000Z","本文"
 ```
 
-## LLM設定
+CSV 読み込み時、既存データと同じ `id` の行は取り込みません。
 
-`js/llm.js` の `LLM_CONFIG` で変更できます。
+## 詳細ドキュメント
 
-```js
-const LLM_CONFIG = {
-  baseUrl: 'http://localhost:11434',  // OllamaのURL
-  model:   'gemma4:latest',           // 使用するモデル
-  timeout: 15000,                     // タイムアウト（ms）
-};
-```
-
-## 注意事項
-
-`file://` でブラウザから直接開く場合、OllamaはCORSを許可した状態で起動する必要があります。
-`start_ollama.bat` は `OLLAMA_ORIGINS=*` を設定済みです。
+- アプリ仕様: `docs/specification.md`
+- データ設計: `docs/data.md`
+- キャラクター設計: `docs/characters.md`
+- 設計判断の記録: `docs/decisions/`
