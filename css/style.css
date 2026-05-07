@@ -242,6 +242,7 @@ textarea {
 
 .mascot-img {
   height: 150px;
+  transform: translateY(8px);
 }
 
 .maid-img {
@@ -669,6 +670,7 @@ textarea {
 
 .mascot-img {
   height: 120px;
+  transform: translateY(10px);
 }
 
 .maid-img {
@@ -1288,7 +1290,7 @@ textarea {
 
   .counter-num { font-size: 60px; min-width: 76px; }
   .bubble { max-width: 118px; font-size: 10.5px; }
-  .mascot-img { height: 92px; }
+  .mascot-img { height: 92px; transform: translateY(8px); }
   .maid-img { height: 128px; }
 
   .counter-label {

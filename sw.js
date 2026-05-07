@@ -1,4 +1,4 @@
-const CACHE_NAME = 'done-stack-pwa-v2';
+const CACHE_NAME = 'done-stack-pwa-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -17,7 +17,7 @@ const APP_SHELL = [
   './img/maid/maid-thinking.png',
   './img/maid/maid-talk-1.png',
   './img/maid/maid-talk-2.png',
-  './img/mascot/mascot.png',
+  './img/mascot/keytan.png',
   './img/icons/icon-192.png',
   './img/icons/icon-512.png',
   './img/icons/maskable-512.png',

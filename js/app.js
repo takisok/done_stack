@@ -514,7 +514,7 @@ document.getElementById('btnDel').addEventListener('click', async () => {
   renderList();
   closeModal();
   setBubble('maidBubble',  '削除しました…\nでもまた積み上げましょう！');
-  setBubble('mascotBubble', '消えた。まあいいけど');
+  setBubble('mascotBubble', '消えた。まあ、そういう日もある。');
 
   try {
     await storageDelete(delId);
@@ -778,11 +778,11 @@ async function init() {
   // ウェルカムセリフ
   if (items.length === 0) {
     setBubble('maidBubble',   '初めまして！\n一緒に積み上げましょう！');
-    setBubble('mascotBubble', '…よろしく（ぶっきらぼう）');
+    setBubble('mascotBubble', '…キーたん。まあ、よろしく。');
   } else {
     const n = items.length;
     setBubble('maidBubble',   `おかえりなさい！\nもう${n}個も積み上げましたね✨`);
-    setBubble('mascotBubble', n >= 10 ? 'また来たの。まあいいけど' : '続けてるね、ちょっとだけ感心');
+    setBubble('mascotBubble', n >= 10 ? 'また来たの。まあ、見てるけど。' : '続けてるね。ちょっとだけ感心。');
   }
 }
 
