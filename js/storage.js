@@ -8,6 +8,7 @@ const DB_NAME = 'done_stack_v1';
 const DB_VER  = 1;
 const STORE   = 'items';
 const LS_KEY  = 'done_stack_items';
+const DELETE_LOG_KEY = 'done_stack_deleted_items';
 
 let db     = null;
 let useIDB = true;   // IndexedDB が使えないと判明したら false に切り替わる
@@ -91,6 +92,24 @@ function lsSave(arr) {
   } catch { /* 容量超過などは無視 */ }
 }
 
+function storageNow() {
+  return new Date().toISOString();
+}
+
+function storageReadDeleteLog() {
+  try {
+    return JSON.parse(localStorage.getItem(DELETE_LOG_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function storageWriteDeleteLog(log) {
+  try {
+    localStorage.setItem(DELETE_LOG_KEY, JSON.stringify(log));
+  } catch { /* 容量超過などは無視 */ }
+}
+
 function storageCreateId() {
   const cryptoApi = globalThis.crypto;
   if (cryptoApi?.randomUUID) return cryptoApi.randomUUID();
@@ -126,7 +145,7 @@ async function storageNormalizeIds(items) {
     }
 
     const oldId = item.id;
-    const nextItem = { ...item, id: storageCreateId() };
+    const nextItem = { ...item, id: storageCreateId(), updatedAt: item.updatedAt || storageNow() };
     migrated.push(nextItem);
 
     try {
@@ -171,7 +190,12 @@ async function storageLoad() {
  */
 async function storageSave(item) {
   const id = item.id || storageCreateId();
-  const savedItem = { id, text: item.text, createdAt: item.createdAt };
+  const savedItem = {
+    id,
+    text: item.text,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt || item.createdAt || storageNow(),
+  };
 
   if (useIDB && db) {
     await dbAdd(savedItem);
@@ -188,13 +212,14 @@ async function storageSave(item) {
  * item は id を含むこと。
  */
 async function storageUpdate(item) {
+  const savedItem = { ...item, updatedAt: item.updatedAt || storageNow() };
   if (useIDB && db) {
-    await dbPut(item);
+    await dbPut(savedItem);
     return;
   }
   const arr = lsLoad();
-  const idx = arr.findIndex(x => x.id === item.id);
-  if (idx > -1) arr[idx] = item;
+  const idx = arr.findIndex(x => x.id === savedItem.id);
+  if (idx > -1) arr[idx] = savedItem;
   lsSave(arr);
 }
 
@@ -202,9 +227,53 @@ async function storageUpdate(item) {
  * 指定 id のアイテムを削除する。
  */
 async function storageDelete(id) {
+  const deleteLog = storageReadDeleteLog();
+  deleteLog[id] = storageNow();
+  storageWriteDeleteLog(deleteLog);
+
   if (useIDB && db) {
     await dbDelete(id);
     return;
   }
   lsSave(lsLoad().filter(x => x.id !== id));
+}
+
+async function storageReplaceAll(nextItems, options = {}) {
+  const normalized = nextItems.map((item) => ({
+    id: item.id || storageCreateId(),
+    text: String(item.text || ''),
+    createdAt: item.createdAt || storageNow(),
+    updatedAt: item.updatedAt || item.createdAt || storageNow(),
+  }));
+
+  if (useIDB) {
+    try {
+      if (!db) await openDB();
+      const tx = db.transaction(STORE, 'readwrite');
+      const store = tx.objectStore(STORE);
+      store.clear();
+      normalized.forEach((item) => store.put(item));
+      await new Promise((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.warn('[storage] replace failed in IndexedDB, using localStorage:', e);
+      useIDB = false;
+      db = null;
+      lsSave(normalized);
+    }
+  } else {
+    lsSave(normalized);
+  }
+
+  if (options.deletedItems) {
+    storageWriteDeleteLog(options.deletedItems);
+  }
+}
+
+function storageGetSyncState() {
+  return {
+    deletedItems: storageReadDeleteLog(),
+  };
 }

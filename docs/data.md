@@ -53,3 +53,22 @@ done_stack_YYYY-MM-DD_HH-mm-ss.csv
 - 既存データと `id` が一致する行は無視します。
 - CSV 内で同じ UUID が複数ある場合も、最初の 1 件だけ取り込みます。
 - 曜日、文字数、推定カテゴリは保存せず、必要に応じて表示時に再計算します。
+
+## Google Drive 同期
+
+Google Drive 同期では、ユーザー本人の Google Drive の `appDataFolder` に `done_stack.json` を保存します。
+
+同期ファイルの形式:
+
+```js
+{
+  version: 1,
+  updatedAt,
+  items: [{ id, text, createdAt, updatedAt }],
+  deletedItems: { [id]: deletedAt }
+}
+```
+
+同期時はローカルデータと Drive 上のデータを `id` 単位でマージします。
+同じ `id` の記録は `updatedAt` が新しい方を採用します。
+削除済みの `id` は `deletedItems` に記録し、削除時刻が記録の `updatedAt` より新しければ復活させません。

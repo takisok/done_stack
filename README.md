@@ -21,6 +21,16 @@ Done Stack は、今日できたことを記録して積み上げていくロー
 
 活動ログを見たい場合は、画面内のリンクまたは `history.html` を開いてください。
 
+## iPhone で使う
+
+GitHub Pages などの HTTPS URL で公開すると、iPhone の Safari から使えます。
+
+1. Safari で GitHub Pages の URL を開きます。
+2. 共有メニューから「ホーム画面に追加」を選びます。
+3. ホーム画面のアイコンから起動します。
+
+PWA 用に `manifest.json`、`sw.js`、ホーム画面アイコンを用意しています。
+
 ## LLM なしで使う
 
 追加の準備は不要です。
@@ -49,6 +59,19 @@ id,createdAt,text
 ```
 
 CSV 読み込み時、既存データと同じ `id` の行は取り込みません。
+
+## Google Drive 同期
+
+Google Drive 同期は、ユーザー本人の Google Drive のアプリ専用領域に `done_stack.json` を保存します。
+使うには Google Cloud Console で OAuth クライアント ID を作り、`js/drive-sync.js` の `DONE_STACK_GOOGLE_CLIENT_ID` に設定してください。
+
+GitHub Pages で使う場合は、OAuth クライアントの承認済み JavaScript 生成元に Pages の origin を追加します。
+
+```text
+https://ユーザー名.github.io
+```
+
+リポジトリをプロジェクトページで公開している場合も、origin はパスなしの `https://ユーザー名.github.io` です。
 
 ## 詳細ドキュメント
 

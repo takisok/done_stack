@@ -256,6 +256,20 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 3200);
 }
 
+function applySyncedItems(nextItems) {
+  items = nextItems
+    .filter((item) => item && item.id && item.text && item.createdAt)
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  currentPage = 1;
+  currentCount = items.length;
+  document.getElementById('counterNum').textContent = currentCount;
+  renderList();
+}
+
+function getActiveItems() {
+  return [...items];
+}
+
 function checkMilestone(n) {
   const msg = MILESTONE_MESSAGES[n];
   if (msg) showToast(msg);
@@ -470,7 +484,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const newText = document.getElementById('modalInput').value.trim();
   if (!newText) { alert('テキストを入力してください'); return; }
 
-  const updatedItem = { ...editingItem, text: newText };
+  const updatedItem = { ...editingItem, text: newText, updatedAt: new Date().toISOString() };
   const idx = items.findIndex(i => i.id === updatedItem.id);
   if (idx > -1) items[idx] = updatedItem;
 
@@ -507,7 +521,7 @@ async function addDone() {
   playDoneSound();
 
   const now  = new Date().toISOString();
-  const item = { id: storageCreateId(), text, createdAt: now };
+  const item = { id: storageCreateId(), text, createdAt: now, updatedAt: now };
   items.push(item);
   currentPage = 1;
 
@@ -603,8 +617,9 @@ document.getElementById('importCsvInput').addEventListener('change', async (e) =
     });
 
     for (const item of newItems) {
-      await storageSave(item);
-      items.push(item);
+      const importedItem = { ...item, updatedAt: item.updatedAt || item.createdAt };
+      await storageSave(importedItem);
+      items.push(importedItem);
     }
 
     items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -621,6 +636,29 @@ document.getElementById('importCsvInput').addEventListener('change', async (e) =
     alert(error.message || 'CSVの読み込みに失敗しました。');
   }
 });
+
+const driveSignInBtn = document.getElementById('driveSignInBtn');
+const driveSyncBtn = document.getElementById('driveSyncBtn');
+
+if (driveSignInBtn && driveSyncBtn && window.doneStackDrive) {
+  window.doneStackDrive.init({
+    getItems: getActiveItems,
+    applyItems: applySyncedItems,
+    statusEl: document.getElementById('driveStatus'),
+    showToast,
+  });
+
+  driveSignInBtn.addEventListener('click', async () => {
+    document.getElementById('menuDropdown').classList.remove('open');
+    await window.doneStackDrive.signIn();
+  });
+
+  driveSyncBtn.addEventListener('click', async () => {
+    document.getElementById('menuDropdown').classList.remove('open');
+    await window.doneStackDrive.sync();
+  });
+}
+
 const doneInput = document.getElementById('doneInput');
 
 doneInput.addEventListener('keydown', (e) => {
