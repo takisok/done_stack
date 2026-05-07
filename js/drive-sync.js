@@ -8,12 +8,16 @@ const DONE_STACK_GOOGLE_CLIENT_ID = '257635604882-j8gd624eici7m8b6ickt84ttsrmro0
 const DRIVE_DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const DRIVE_FILE_NAME = 'done_stack.json';
+const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
 
 (function setupDriveSync() {
   let tokenClient = null;
   let gapiReady = false;
   let gisReady = false;
   let signedIn = false;
+  let syncTimer = null;
+  let syncInFlight = false;
+  let syncQueued = false;
   let hooks = {
     getItems: () => [],
     applyItems: () => {},
@@ -29,6 +33,20 @@ const DRIVE_FILE_NAME = 'done_stack.json';
     if (!hooks.statusEl) return;
     hooks.statusEl.dataset.state = state;
     hooks.statusEl.textContent = label;
+  }
+
+  function rememberConnected() {
+    try {
+      localStorage.setItem(DRIVE_CONNECTED_KEY, '1');
+    } catch { /* localStorage unavailable */ }
+  }
+
+  function hasConnectionHint() {
+    try {
+      return localStorage.getItem(DRIVE_CONNECTED_KEY) === '1';
+    } catch {
+      return false;
+    }
   }
 
   function waitForGlobal(name, timeout = 8000) {
@@ -74,7 +92,10 @@ const DRIVE_FILE_NAME = 'done_stack.json';
     }
   }
 
-  async function signIn() {
+  async function signIn(options = {}) {
+    const prompt = options.prompt ?? (signedIn ? '' : 'consent');
+    const silent = Boolean(options.silent);
+
     try {
       await ensureGoogleClients();
       await new Promise((resolve, reject) => {
@@ -84,17 +105,20 @@ const DRIVE_FILE_NAME = 'done_stack.json';
             return;
           }
           signedIn = true;
+          rememberConnected();
           setStatus('on', 'Drive 接続中');
           resolve();
         };
-        tokenClient.requestAccessToken({ prompt: signedIn ? '' : 'consent' });
+        tokenClient.requestAccessToken({ prompt });
       });
-      hooks.showToast('Google Drive に接続しました');
+      if (!silent) hooks.showToast('Google Drive に接続しました');
       return true;
     } catch (error) {
       console.warn('[drive-sync] sign in failed:', error);
-      setStatus('error', 'Drive 接続不可');
-      alert(error.message || 'Google Drive への接続に失敗しました。');
+      if (!silent) {
+        setStatus('error', 'Drive 接続不可');
+        alert(error.message || 'Google Drive への接続に失敗しました。');
+      }
       return false;
     }
   }
@@ -203,11 +227,20 @@ const DRIVE_FILE_NAME = 'done_stack.json';
     };
   }
 
-  async function sync() {
+  async function sync(options = {}) {
+    const silent = Boolean(options.silent);
+    const interactive = options.interactive ?? !silent;
+
+    if (syncInFlight) {
+      syncQueued = true;
+      return false;
+    }
+
+    syncInFlight = true;
     try {
       await ensureGoogleClients();
       if (!signedIn || !gapi.client.getToken()) {
-        const connected = await signIn();
+        const connected = await signIn({ prompt: interactive && !hasConnectionHint() ? 'consent' : '', silent });
         if (!connected) return;
       }
       setStatus('syncing', 'Drive 同期中...');
@@ -221,20 +254,43 @@ const DRIVE_FILE_NAME = 'done_stack.json';
       await uploadPayload(file?.id, mergedPayload);
 
       setStatus('on', 'Drive 同期済み');
-      hooks.showToast('Google Drive と同期しました');
+      if (!silent) hooks.showToast('Google Drive と同期しました');
+      return true;
     } catch (error) {
       console.warn('[drive-sync] sync failed:', error);
-      setStatus('error', 'Drive 同期失敗');
-      alert(error.message || 'Google Drive との同期に失敗しました。');
+      if (!silent) {
+        setStatus('error', 'Drive 同期失敗');
+        alert(error.message || 'Google Drive との同期に失敗しました。');
+      }
+      return false;
+    } finally {
+      syncInFlight = false;
+      if (syncQueued) {
+        syncQueued = false;
+        scheduleSync();
+      }
     }
+  }
+
+  function scheduleSync(delay = 1200) {
+    if (!signedIn || !gapi.client.getToken()) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      sync({ silent: true, interactive: false });
+    }, delay);
   }
 
   window.doneStackDrive = {
     init(nextHooks) {
       hooks = { ...hooks, ...nextHooks };
-      setStatus(getClientId() ? 'off' : 'setup', getClientId() ? 'Drive 未接続' : 'Drive 設定待ち');
+      if (!getClientId()) {
+        setStatus('setup', 'Drive 設定待ち');
+        return;
+      }
+      setStatus(hasConnectionHint() ? 'off' : 'off', hasConnectionHint() ? 'Drive 再同期待ち' : 'Drive 未接続');
     },
     signIn,
     sync,
+    scheduleSync,
   };
 })();

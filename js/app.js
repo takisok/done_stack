@@ -270,6 +270,10 @@ function getActiveItems() {
   return [...items];
 }
 
+function scheduleDriveSync() {
+  window.doneStackDrive?.scheduleSync?.();
+}
+
 function checkMilestone(n) {
   const msg = MILESTONE_MESSAGES[n];
   if (msg) showToast(msg);
@@ -492,7 +496,10 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   closeModal();
   setBubble('maidBubble', '修正されましたね！\n完璧主義ですわ✨');
 
-  try { await storageUpdate(updatedItem); } catch (e) { console.warn('update failed', e); }
+  try {
+    await storageUpdate(updatedItem);
+    scheduleDriveSync();
+  } catch (e) { console.warn('update failed', e); }
 });
 
 document.getElementById('btnDel').addEventListener('click', async () => {
@@ -509,7 +516,10 @@ document.getElementById('btnDel').addEventListener('click', async () => {
   setBubble('maidBubble',  '削除しました…\nでもまた積み上げましょう！');
   setBubble('mascotBubble', '消えた。まあいいけど');
 
-  try { await storageDelete(delId); } catch (e) { console.warn('delete failed', e); }
+  try {
+    await storageDelete(delId);
+    scheduleDriveSync();
+  } catch (e) { console.warn('delete failed', e); }
 });
 
 // ── Done 追加 ─────────────────────────────────────
@@ -544,6 +554,7 @@ async function addDone() {
   // ── バックグラウンドで永続化 ──
   try {
     await storageSave(item);
+    scheduleDriveSync();
   } catch (e) {
     console.warn('Storage save failed:', e);
   }
@@ -621,6 +632,7 @@ document.getElementById('importCsvInput').addEventListener('change', async (e) =
       await storageSave(importedItem);
       items.push(importedItem);
     }
+    scheduleDriveSync();
 
     items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     currentPage = 1;
@@ -637,20 +649,14 @@ document.getElementById('importCsvInput').addEventListener('change', async (e) =
   }
 });
 
-const driveSignInBtn = document.getElementById('driveSignInBtn');
 const driveSyncBtn = document.getElementById('driveSyncBtn');
 
-if (driveSignInBtn && driveSyncBtn && window.doneStackDrive) {
+if (driveSyncBtn && window.doneStackDrive) {
   window.doneStackDrive.init({
     getItems: getActiveItems,
     applyItems: applySyncedItems,
     statusEl: document.getElementById('driveStatus'),
     showToast,
-  });
-
-  driveSignInBtn.addEventListener('click', async () => {
-    document.getElementById('menuDropdown').classList.remove('open');
-    await window.doneStackDrive.signIn();
   });
 
   driveSyncBtn.addEventListener('click', async () => {
