@@ -77,6 +77,54 @@ https://ユーザー名.github.io
 
 リポジトリをプロジェクトページで公開している場合も、origin はパスなしの `https://ユーザー名.github.io` です。
 
+## セキュリティについて
+
+Done Stack は静的なブラウザアプリです。サーバー側にユーザーデータを保存せず、記録データは基本的にブラウザ内の IndexedDB に保存されます。
+Google Drive 同期を使う場合も、Drive のアプリ専用領域である `appDataFolder` に `done_stack.json` を保存します。権限スコープは `https://www.googleapis.com/auth/drive.appdata` で、ユーザーの通常の Drive ファイル全体を読む権限ではありません。
+
+現在の主な注意点と対策方針は次の通りです。
+
+- 検索結果のグラフ表示では ECharts を `vendor/echarts/echarts.min.js` としてローカル同梱しています。外部CDNから実行時にスクリプトを読み込まないため、CDN由来の改ざんや停止の影響を受けにくくしています。
+- LLM 接続時は、入力した Done 内容をローカルの Ollama (`http://localhost:11434`) に送信します。外部サービスへ送る設計ではありませんが、同じPC上のローカルプロセスに内容を渡すため、信頼できる Ollama を起動している状態で使ってください。
+- Google Drive 同期では、Drive 上のデータが壊れていたり極端に大きかったりする場合に備えて、同期データのサイズ上限、件数上限、日付形式チェックを入れています。
+
+Drive 同期データの現在の上限は次の通りです。
+
+- `done_stack.json` の本文サイズ: 最大 20MB
+- Done 件数: 最大 100,000 件
+- 削除ログ件数: 最大 100,000 件
+- Done 本文: 最大 1024 文字
+- `createdAt` / `updatedAt` / 削除日時: JavaScript の `Date.parse()` で解釈できる文字列のみ
+
+今後さらに堅くするなら、次の対応が候補です。
+
+- 外部から翻訳文やテーマ設定を読み込むようになった場合は、HTMLとして挿入せず `textContent` を基本にする
+
+Drive 同期で問題が起きた場合は、できるだけ原因が分かるメッセージを表示します。
+たとえば、`done_stack.json` のサイズ超過、JSONの破損、Done件数の上限超過、本文文字数の上限超過、日付形式の不正、削除ログの上限超過などを区別します。
+
+### Content Security Policy
+
+`index.html`、`history.html`、`search.html` には Content Security Policy を設定しています。
+アプリ自身のファイルを基本にしつつ、Google Drive 同期に必要な Google Identity Services / Google API と、ローカル LLM 用の Ollama (`http://localhost:11434` / `http://127.0.0.1:11434`) への通信だけを許可しています。
+
+主な制限は次の通りです。
+
+- スクリプト: アプリ自身、`accounts.google.com`、`apis.google.com`、`content.googleapis.com`
+- 通信先: アプリ自身、Ollama、Google API 関連
+- 画像: アプリ自身と `data:`
+- Service Worker / manifest: アプリ自身
+- iframe: Google OAuth / API 関連
+- `object` タグ: 禁止
+
+## 同梱ライブラリ
+
+- Apache ECharts 5.5.1
+  - ファイル: `vendor/echarts/echarts.min.js`
+  - ライセンス: Apache License 2.0
+  - ライセンス本文: `vendor/echarts/LICENSE`
+  - 公式サイト: https://echarts.apache.org/
+
 ## 詳細ドキュメント
 
 - アプリ仕様: `docs/specification.md`

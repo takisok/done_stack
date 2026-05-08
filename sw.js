@@ -1,4 +1,4 @@
-const CACHE_NAME = 'done-stack-pwa-v7';
+const CACHE_NAME = 'done-stack-pwa-v9';
 const APP_SHELL = [
   './',
   './index.html',
@@ -16,6 +16,8 @@ const APP_SHELL = [
   './js/speech.js',
   './js/stars.js',
   './js/storage.js',
+  './vendor/echarts/echarts.min.js',
+  './vendor/echarts/LICENSE',
   './img/maid/maid-idle.png',
   './img/maid/maid-thinking.png',
   './img/maid/maid-talk-1.png',

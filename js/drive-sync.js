@@ -9,6 +9,11 @@ const DRIVE_DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const DRIVE_FILE_NAME = 'done_stack.json';
 const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
+const DRIVE_MAX_PAYLOAD_BYTES = 20 * 1024 * 1024;
+const DRIVE_MAX_ITEMS = 100000;
+const DRIVE_MAX_DELETED_ITEMS = 100000;
+const DRIVE_MAX_TEXT_LENGTH = 1024;
+const DRIVE_MAX_DATE_LENGTH = 40;
 
 (function setupDriveSync() {
   let tokenClient = null;
@@ -65,6 +70,48 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       };
       tick();
     });
+  }
+
+  function formatBytes(bytes) {
+    if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+    if (bytes >= 1024) return `${Math.round(bytes / 1024)}KB`;
+    return `${bytes}B`;
+  }
+
+  function driveError(messageJa, messageEn, details = {}) {
+    const error = new Error(I18N.getLanguage() === 'en' ? messageEn : messageJa);
+    error.driveDetails = details;
+    return error;
+  }
+
+  function summarizeValidation(summary) {
+    const parts = [];
+    if (summary.itemsOverLimit > 0) {
+      parts.push(I18N.getLanguage() === 'en'
+        ? `${summary.itemsOverLimit} Done entries exceeded the item limit`
+        : `Done件数が上限を${summary.itemsOverLimit}件超えています`);
+    }
+    if (summary.invalidItems > 0) {
+      parts.push(I18N.getLanguage() === 'en'
+        ? `${summary.invalidItems} Done entries had invalid data`
+        : `${summary.invalidItems}件のDoneに不正なデータがあります`);
+    }
+    if (summary.truncatedTexts > 0) {
+      parts.push(I18N.getLanguage() === 'en'
+        ? `${summary.truncatedTexts} Done entries were longer than ${DRIVE_MAX_TEXT_LENGTH} characters`
+        : `${summary.truncatedTexts}件のDone本文が${DRIVE_MAX_TEXT_LENGTH}文字を超えています`);
+    }
+    if (summary.deletedOverLimit > 0) {
+      parts.push(I18N.getLanguage() === 'en'
+        ? `${summary.deletedOverLimit} delete-log entries exceeded the limit`
+        : `削除ログが上限を${summary.deletedOverLimit}件超えています`);
+    }
+    if (summary.invalidDeletes > 0) {
+      parts.push(I18N.getLanguage() === 'en'
+        ? `${summary.invalidDeletes} delete-log entries had invalid dates`
+        : `${summary.invalidDeletes}件の削除ログの日付が不正です`);
+    }
+    return parts;
   }
 
   async function ensureGoogleClients() {
@@ -141,7 +188,26 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       fileId,
       alt: 'media',
     });
-    return typeof response.body === 'string' ? JSON.parse(response.body) : response.result;
+    if (typeof response.body === 'string') {
+      const remoteSize = new Blob([response.body]).size;
+      if (remoteSize > DRIVE_MAX_PAYLOAD_BYTES) {
+        throw driveError(
+          `Drive上のデータが大きすぎるため同期できません。\n現在: ${formatBytes(remoteSize)} / 上限: ${formatBytes(DRIVE_MAX_PAYLOAD_BYTES)}`,
+          `Drive data is too large to sync.\nCurrent: ${formatBytes(remoteSize)} / Limit: ${formatBytes(DRIVE_MAX_PAYLOAD_BYTES)}`,
+          { code: 'remote-size-limit', remoteSize },
+        );
+      }
+      try {
+        return JSON.parse(response.body);
+      } catch (error) {
+        throw driveError(
+          'Drive上のdone_stack.jsonがJSONとして読み取れません。Drive側の同期データが壊れている可能性があります。',
+          'The Drive done_stack.json file is not valid JSON. The remote sync data may be corrupted.',
+          { code: 'remote-json-invalid', cause: error },
+        );
+      }
+    }
+    return response.result;
   }
 
   async function uploadPayload(fileId, payload) {
@@ -157,6 +223,16 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       metadata.parents = ['appDataFolder'];
     }
 
+    const payloadText = JSON.stringify(payload);
+    const payloadSize = new Blob([payloadText]).size;
+    if (payloadSize > DRIVE_MAX_PAYLOAD_BYTES) {
+      throw driveError(
+        `Doneデータが大きすぎるため同期できません。\n現在: ${formatBytes(payloadSize)} / 上限: ${formatBytes(DRIVE_MAX_PAYLOAD_BYTES)}`,
+        `Done data is too large to sync.\nCurrent: ${formatBytes(payloadSize)} / Limit: ${formatBytes(DRIVE_MAX_PAYLOAD_BYTES)}`,
+        { code: 'local-size-limit', payloadSize },
+      );
+    }
+
     const delimiter = '-------done-stack-boundary';
     const body = [
       `--${delimiter}`,
@@ -166,7 +242,7 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       `--${delimiter}`,
       'Content-Type: application/json; charset=UTF-8',
       '',
-      JSON.stringify(payload),
+      payloadText,
       `--${delimiter}--`,
     ].join('\r\n');
 
@@ -190,14 +266,63 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
   }
 
   function normalizeItems(items) {
-    return items
-      .filter((item) => item && item.id && item.text && item.createdAt)
-      .map((item) => ({
+    return normalizeItemsWithSummary(items).items;
+  }
+
+  function normalizeItemsWithSummary(items) {
+    const source = Array.isArray(items) ? items : [];
+    const summary = {
+      itemsOverLimit: Math.max(0, source.length - DRIVE_MAX_ITEMS),
+      invalidItems: 0,
+      truncatedTexts: 0,
+    };
+    const normalized = [];
+
+    source.slice(0, DRIVE_MAX_ITEMS).forEach((item) => {
+      if (!item || !item.id || !item.text || !isValidSyncDate(item.createdAt)) {
+        summary.invalidItems += 1;
+        return;
+      }
+      const text = String(item.text);
+      if (text.length > DRIVE_MAX_TEXT_LENGTH) summary.truncatedTexts += 1;
+      normalized.push({
         id: String(item.id),
-        text: String(item.text),
+        text: text.slice(0, DRIVE_MAX_TEXT_LENGTH),
         createdAt: item.createdAt,
-        updatedAt: item.updatedAt || item.createdAt,
-      }));
+        updatedAt: isValidSyncDate(item.updatedAt) ? item.updatedAt : item.createdAt,
+      });
+    });
+
+    return { items: normalized, summary };
+  }
+
+  function isValidSyncDate(value) {
+    if (typeof value !== 'string') return false;
+    const time = Date.parse(value);
+    return Number.isFinite(time) && value.length <= DRIVE_MAX_DATE_LENGTH;
+  }
+
+  function normalizeDeleteLog(log) {
+    return normalizeDeleteLogWithSummary(log).deletedItems;
+  }
+
+  function normalizeDeleteLogWithSummary(log) {
+    const entries = Object.entries(log || {});
+    const summary = {
+      deletedOverLimit: Math.max(0, entries.length - DRIVE_MAX_DELETED_ITEMS),
+      invalidDeletes: 0,
+    };
+    const normalized = {};
+
+    entries.slice(0, DRIVE_MAX_DELETED_ITEMS).forEach(([id, deletedAt]) => {
+      if (!id || !isValidSyncDate(deletedAt)) {
+        summary.invalidDeletes += 1;
+        return;
+      }
+      normalized[String(id)] = deletedAt;
+    });
+
+    return { deletedItems: normalized, summary };
   }
 
   function newerDate(a, b) {
@@ -205,13 +330,31 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
   }
 
   function mergePayload(localItems, remotePayload) {
-    const remoteItems = normalizeItems(remotePayload?.items || []);
-    const localDeleted = storageGetSyncState().deletedItems || {};
-    const remoteDeleted = remotePayload?.deletedItems || {};
+    const localNormalized = normalizeItemsWithSummary(localItems);
+    const remoteNormalized = normalizeItemsWithSummary(remotePayload?.items || []);
+    const localDeletedNormalized = normalizeDeleteLogWithSummary(storageGetSyncState().deletedItems);
+    const remoteDeletedNormalized = normalizeDeleteLogWithSummary(remotePayload?.deletedItems);
+    const remoteValidationMessages = summarizeValidation({
+      itemsOverLimit: remoteNormalized.summary.itemsOverLimit,
+      invalidItems: remoteNormalized.summary.invalidItems,
+      truncatedTexts: remoteNormalized.summary.truncatedTexts,
+      deletedOverLimit: remoteDeletedNormalized.summary.deletedOverLimit,
+      invalidDeletes: remoteDeletedNormalized.summary.invalidDeletes,
+    });
+    if (remoteValidationMessages.length > 0) {
+      throw driveError(
+        `Drive上の同期データに問題があります。\n${remoteValidationMessages.join('\n')}`,
+        `Drive sync data has validation problems.\n${remoteValidationMessages.join('\n')}`,
+        { code: 'remote-validation', messages: remoteValidationMessages },
+      );
+    }
+
+    const localDeleted = localDeletedNormalized.deletedItems;
+    const remoteDeleted = remoteDeletedNormalized.deletedItems;
     const deletedItems = { ...remoteDeleted, ...localDeleted };
     const byId = new Map();
 
-    normalizeItems(localItems).concat(remoteItems).forEach((item) => {
+    localNormalized.items.concat(remoteNormalized.items).forEach((item) => {
       const deletedAt = deletedItems[item.id];
       if (deletedAt && newerDate(deletedAt, item.updatedAt)) return;
 
@@ -226,6 +369,13 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       updatedAt: new Date().toISOString(),
       items: [...byId.values()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
       deletedItems,
+      warnings: summarizeValidation({
+        itemsOverLimit: localNormalized.summary.itemsOverLimit,
+        invalidItems: localNormalized.summary.invalidItems,
+        truncatedTexts: localNormalized.summary.truncatedTexts,
+        deletedOverLimit: localDeletedNormalized.summary.deletedOverLimit,
+        invalidDeletes: localDeletedNormalized.summary.invalidDeletes,
+      }),
     };
   }
 
@@ -256,7 +406,10 @@ const DRIVE_CONNECTED_KEY = 'done_stack_drive_connected';
       await uploadPayload(file?.id, mergedPayload);
 
       setStatus('on', I18N.getLanguage() === 'en' ? 'Drive synced' : 'Drive 同期済み');
-      if (!silent) hooks.showToast(I18N.getLanguage() === 'en' ? 'Synced with Google Drive' : 'Google Drive と同期しました');
+      if (!silent) {
+        const message = I18N.getLanguage() === 'en' ? 'Synced with Google Drive' : 'Google Drive と同期しました';
+        hooks.showToast(mergedPayload.warnings.length ? `${message}\n${mergedPayload.warnings.join('\n')}` : message);
+      }
       return true;
     } catch (error) {
       console.warn('[drive-sync] sync failed:', error);
