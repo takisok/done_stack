@@ -1,4 +1,4 @@
-const CACHE_NAME = 'done-stack-pwa-v25';
+const CACHE_NAME = 'done-stack-pwa-v30';
 const APP_SHELL = [
   './',
   './index.html',

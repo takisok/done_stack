@@ -77,6 +77,11 @@ textarea {
   text-decoration: none;
 }
 
+.header-action {
+  align-items: center;
+  display: inline-flex;
+}
+
 .header-tools {
   display: flex;
   align-items: center;
@@ -96,13 +101,13 @@ textarea {
 .header-search-input {
   width: 220px;
   min-width: 0;
-  height: 38px;
+  height: 40px;
   background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 0;
+  border-radius: 4px;
   color: #ffffff;
   font-size: 14px;
-  padding: 0 10px;
+  padding: 0 14px;
   outline: none;
 }
 
@@ -115,22 +120,6 @@ textarea {
   background: rgba(255,255,255,0.14);
 }
 
-.header-search-btn {
-  min-height: 38px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 0;
-  color: #ffffff;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 13px;
-  padding: 0 12px;
-}
-
-.header-search-btn:hover {
-  border-color: rgba(255,255,255,0.35);
-}
-
 .header-menu {
   position: relative;
 }
@@ -138,8 +127,9 @@ textarea {
 .menu-btn {
   background: transparent;
   border: 1px solid var(--border-hi);
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 6px 12px;
+  height: 40px;
   min-height: 40px;
   font-size: 12px;
   color: var(--text-muted);
@@ -380,6 +370,7 @@ textarea {
 
 .input-row {
   display: flex;
+  align-items: stretch;
   gap: 10px;
 }
 
@@ -387,9 +378,11 @@ textarea {
   flex: 1;
   background: var(--surface-0);
   border: 1px solid var(--border-hi);
-  border-radius: 8px;
+  border-radius: 4px;
+  height: 46px;
   padding: 10px 16px;
   font-size: 14px;
+  line-height: 1.2;
   color: var(--text);
   font-family: inherit;
   outline: none;
@@ -405,7 +398,8 @@ textarea {
 .done-btn {
   background: var(--black);
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
+  height: 44px;
   padding: 0px 10px;
   margin: 1px 0;
   font-size: 21px;
@@ -415,6 +409,7 @@ textarea {
   font-family: inherit;
   white-space: nowrap;
   min-height: 44px;
+  line-height: 1;
   letter-spacing: 0.05em;
   transition: background 0.2s, transform 0.15s;
 }
@@ -798,10 +793,10 @@ textarea {
 .menu-btn {
   background: #3d3d3d;
   border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 0;
+  border-radius: 4px;
   color: #ffffff;
   font-size: 14px;
-  padding: 10px 16px;
+  padding: 0 16px;
 }
 
 .menu-btn:hover {
@@ -887,18 +882,20 @@ textarea {
 }
 
 .done-input {
-  border-radius: 0;
+  border-radius: 4px;
   font-size: 18px;
-  padding: 11px 14px;
+  height: 46px;
+  padding: 11px 18px;
 }
 
 .done-btn {
   border: 1px solid #111111;
-  border-radius: 0;
+  border-radius: 4px;
   color: #ffffff;
   font-size: 16px;
   font-weight: 500;
-  margin: 0;
+  height: 44px;
+  margin: 1px 0;
   padding: 0 22px;
 }
 
@@ -1544,11 +1541,6 @@ textarea {
     padding: 0 8px;
   }
 
-  .header-search-btn {
-    min-height: 36px;
-    padding: 0 9px;
-  }
-
   .app {
     padding: 0 14px calc(48px + env(safe-area-inset-bottom));
   }
@@ -1600,11 +1592,14 @@ textarea {
 
   .done-input {
     font-size: 16px;
+    height: 46px;
     min-width: 0;
     min-height: 46px;
   }
 
   .done-btn {
+    height: 44px;
+    margin: 1px 0;
     width: 100%;
     padding: 0 14px;
   }

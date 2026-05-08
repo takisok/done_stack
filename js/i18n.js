@@ -2,7 +2,7 @@ const I18N_STORAGE_KEY = 'done_stack_language';
 
 const I18N_MESSAGES = {
   ja: {
-    search: '検索',
+    search: '⌕ 検索',
     searchAria: 'Doneを検索',
     settings: '⚙ 設定',
     activityLog: '活動ログ',
@@ -85,7 +85,7 @@ const I18N_MESSAGES = {
     milestone_1000: '1000達成。あなたは伝説だ。',
   },
   en: {
-    search: 'Search',
+    search: '⌕ Search',
     searchAria: 'Search Done entries',
     settings: '⚙ Settings',
     activityLog: 'Activity Log',
