@@ -265,17 +265,89 @@ function setBubble(id, text) {
 // ── パーティクル ──────────────────────────────────
 
 const EMOJI_PARTICLES = ['✦', '✧', '◇', '◆', '✶', '✸', '·', '•'];
-
+const LIGHT_PARTICLE_COLORS = [
+  '#ff5f8f',
+  '#ffb84d',
+  '#fff06a',
+  '#58e6a7',
+  '#4dd8ff',
+  '#7f8cff',
+  '#d86bff',
+];
 function spawnParticles(x, y) {
-  for (let i = 0; i < 8; i++) {
+  const ring = document.createElement('div');
+  ring.className = 'particle-ring';
+  ring.style.left = `${x}px`;
+  ring.style.top = `${y}px`;
+  document.body.appendChild(ring);
+  setTimeout(() => ring.remove(), 900);
+
+  for (let i = 0; i < 22; i++) {
+    const angle = (Math.PI * 2 * i) / 22 + (Math.random() * 0.55 - 0.275);
+    const distance = 28 + Math.random() * 58;
+    const color = pick(LIGHT_PARTICLE_COLORS);
+    const p = document.createElement('div');
+    p.className = 'light-particle';
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+    p.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+    p.style.setProperty('--dy', `${Math.sin(angle) * distance - 16}px`);
+    p.style.setProperty('--particle-color', color);
+    p.style.animationDelay = `${Math.random() * 0.08}s`;
+    p.style.animationDuration = `${1.45 + Math.random() * 0.55}s`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2300);
+  }
+
+  for (let i = 0; i < 10; i++) {
     const p = document.createElement('div');
     p.className    = 'particle';
     p.textContent  = pick(EMOJI_PARTICLES);
+    p.style.setProperty('--particle-color', pick(LIGHT_PARTICLE_COLORS));
     p.style.left   = (x + Math.random() * 80 - 40) + 'px';
     p.style.top    = (y + Math.random() * 40 - 20) + 'px';
     p.style.animationDelay = (Math.random() * 0.3) + 's';
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 1800);
+  }
+}
+
+function spawnFireworkBurst(x, y, size = 1) {
+  const count = size >= 1.1 ? 64 : 48;
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.48 - 0.24);
+    const distance = (86 + Math.random() * 168) * size;
+    const particle = document.createElement('div');
+    const isShape = Math.random() < 0.42;
+    particle.className = isShape ? 'particle firework-shape-particle' : 'light-particle firework-light-particle';
+    if (isShape) particle.textContent = pick(EMOJI_PARTICLES);
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+    particle.style.setProperty('--dy', `${Math.sin(angle) * distance - 18}px`);
+    particle.style.setProperty('--particle-color', pick(LIGHT_PARTICLE_COLORS));
+    if (isShape) particle.style.setProperty('--start-rotate', `${Math.random() * 120 - 60}deg`);
+    particle.style.animationDelay = `${Math.random() * 0.08}s`;
+    particle.style.animationDuration = `${1.05 + Math.random() * 0.45}s`;
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1800);
+  }
+}
+
+function spawnCelebrationFireworks(count) {
+  if (count < 10 || count % 10 !== 0) return;
+
+  const isHundred = count % 100 === 0;
+  const burstCount = isHundred ? 6 : 3;
+  const topLimit = Math.max(160, window.innerHeight * 0.58);
+
+  for (let i = 0; i < burstCount; i++) {
+    const delay = i * (isHundred ? 190 : 230) + Math.random() * 120;
+    setTimeout(() => {
+      const x = window.innerWidth * (0.14 + Math.random() * 0.72);
+      const y = 72 + Math.random() * (topLimit - 72);
+      spawnFireworkBurst(x, y, isHundred ? 1.18 : 0.92);
+    }, delay);
   }
 }
 
@@ -607,6 +679,7 @@ async function addDone() {
   // ── UI を即時更新（DB保存を待たない） ──
   animateCounter(items.length);
   checkMilestone(items.length);
+  spawnCelebrationFireworks(items.length);
   respondWithCharacters(text);  // LLM or 静的フォールバック（非同期、非ブロッキング）
   const btn  = document.getElementById('doneBtn');
   const rect = btn.getBoundingClientRect();

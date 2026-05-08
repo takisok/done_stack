@@ -631,14 +631,131 @@ textarea {
   pointer-events: none;
   z-index: 300;
   font-size: 16px;
-  color: var(--text-muted);
+  color: var(--particle-color, var(--text-muted));
+  text-shadow:
+    0 0 8px var(--particle-color, #ffffff),
+    0 0 18px var(--particle-color, #ffffff);
   animation: particleUp 1.2s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 @keyframes particleUp {
-  0%   { opacity: 0.8; transform: translateY(0) scale(1) rotate(0deg); }
-  100% { opacity: 0;   transform: translateY(-80px) scale(0.3) rotate(160deg); }
+  0%   { opacity: 0; transform: translateY(0) scale(0.7) rotate(0deg); }
+  16%  { opacity: 1; transform: translateY(-12px) scale(1.2) rotate(28deg); }
+  100% { opacity: 0; transform: translateY(-96px) scale(0.25) rotate(180deg); }
 }
+
+.light-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 299;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #fff8d8;
+  box-shadow:
+    0 0 8px rgba(255,248,216,0.95),
+    0 0 16px rgba(255,232,150,0.52);
+  animation: lightBurst 1.65s cubic-bezier(0.2, 0.78, 0.25, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.particle-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 298;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow:
+    0 0 0 2px rgba(255,95,143,0.3),
+    0 0 22px rgba(77,216,255,0.58),
+    0 0 38px rgba(216,107,255,0.45);
+  transform: translate(-50%, -50%) scale(0.4);
+  animation: lightRing 0.72s ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes lightBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.16 - 50%), calc(var(--dy) * 0.16 - 50%)) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(0.55);
+  }
+}
+
+@keyframes lightRing {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.35);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(9);
+  }
+}
+
+.firework-light-particle {
+  z-index: 360;
+  width: 13px;
+  height: 13px;
+  mix-blend-mode: normal;
+  background: #fff8d8;
+  box-shadow:
+    0 0 8px rgba(255,248,216,0.95),
+    0 0 16px rgba(255,232,150,0.56);
+  animation-name: fireworkLightBurst;
+}
+
+.firework-shape-particle {
+  z-index: 361;
+  font-size: 20px;
+  line-height: 1;
+  mix-blend-mode: normal;
+  animation-name: fireworkShapeBurst;
+  text-shadow:
+    0 0 5px var(--particle-color),
+    0 0 9px var(--particle-color);
+}
+
+@keyframes fireworkLightBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.18 - 50%), calc(var(--dy) * 0.18 - 50%)) scale(1.45);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) + 36px - 50%)) scale(0.2);
+  }
+}
+
+@keyframes fireworkShapeBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.82) rotate(var(--start-rotate, 0deg));
+  }
+  14% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.18 - 50%), calc(var(--dy) * 0.18 - 50%)) scale(1.2) rotate(70deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) + 36px - 50%)) scale(0.24) rotate(260deg);
+  }
+}
+
 
 /* ── マイルストーントースト ── */
 .toast {
