@@ -353,17 +353,7 @@ function spawnCelebrationFireworks(count) {
 
 // ── マイルストーントースト ────────────────────────
 
-const MILESTONE_MESSAGES = {
-  1:    '最初の一歩。ここから始まる。',
-  5:    '5達成。ペースが生まれてきた。',
-  10:   '10達成。二桁の領域へ。',
-  20:   '20達成。習慣になりつつある。',
-  50:   '50達成。本物の積み上げだ。',
-  100:  '100達成。伝説の始まり。',
-  200:  '200達成。もう止まらない。',
-  500:  '500達成。圧倒的な軌跡。',
-  1000: '1000達成。あなたは伝説だ。',
-};
+const MILESTONE_KEYS = new Set([1, 5, 10, 20, 50, 100, 200, 500, 1000]);
 
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -409,17 +399,17 @@ function setRandomDonePlaceholder() {
 }
 
 function checkMilestone(n) {
-  const msg = MILESTONE_MESSAGES[n];
-  if (msg) showToast(msg);
+  if (MILESTONE_KEYS.has(n)) showToast(I18N.t(`milestone_${n}`));
 }
 
 // ── リスト描画 ────────────────────────────────────
 
 function formatDate(iso) {
   const d = new Date(iso);
-  return d.toLocaleDateString('ja-JP',  { year: 'numeric', month: '2-digit', day: '2-digit' })
+  const locale = I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP';
+  return d.toLocaleDateString(locale,  { year: 'numeric', month: '2-digit', day: '2-digit' })
        + ' '
-       + d.toLocaleTimeString('ja-JP',  { hour: '2-digit', minute: '2-digit' });
+       + d.toLocaleTimeString(locale,  { hour: '2-digit', minute: '2-digit' });
 }
 
 function escapeHtml(s) {
@@ -591,7 +581,7 @@ function renderList() {
         <div class="item-text">${escapeHtml(item.text)}</div>
         <div class="item-date">${formatDate(item.createdAt)}</div>
       </div>
-      <div class="item-edit-hint">✎ 編集</div>`;
+      <div class="item-edit-hint">${I18N.t('editHint')}</div>`;
 
     el.addEventListener('click', () => openModal(item));
     list.appendChild(el);
