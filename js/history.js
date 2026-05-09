@@ -40,7 +40,7 @@ function toMonthKey(date) {
 }
 
 function parseItemDate(item) {
-  const date = new Date(item.createdAt);
+  const date = new Date(item.doneAt || item.createdAt);
   return Number.isNaN(date.getTime()) ? new Date() : date;
 }
 
@@ -355,6 +355,7 @@ function moveMonth(delta) {
 async function initHistory() {
   I18N.initControls();
   historyItems = await storageLoad();
+  historyItems = historyItems.map((item) => ({ ...item, doneAt: item.doneAt || item.createdAt }));
   historyItems.sort((a, b) => parseItemDate(a) - parseItemDate(b));
   const latest = historyItems.at(-1);
   currentMonth = latest ? startOfMonth(parseItemDate(latest)) : startOfMonth(new Date());

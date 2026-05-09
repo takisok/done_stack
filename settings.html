@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com https://content.googleapis.com; connect-src 'self' http://localhost:11434 http://127.0.0.1:11434 https://accounts.google.com https://apis.google.com https://www.googleapis.com https://content.googleapis.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'; frame-src https://accounts.google.com https://content.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title>Done Stack - 設定</title>
+  <meta name="theme-color" content="#1f1f1f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Done Stack">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a class="header-title header-link" href="index.html">Done Stack</a>
+    <div class="header-tools">
+      <a class="menu-btn header-action" href="index.html" data-i18n="backToInput">入力へ戻る</a>
+    </div>
+  </div>
+</header>
+
+<main class="app settings-app">
+  <section class="history-hero">
+    <div>
+      <div class="history-kicker">Done Stack</div>
+      <h1 class="history-title" data-i18n="settingsTitle">設定</h1>
+    </div>
+  </section>
+
+  <section class="history-panel settings-panel">
+    <div class="settings-row">
+      <div>
+        <h2 data-i18n="userName">ユーザー名</h2>
+        <p data-i18n="userNameDescription">キャラクターが呼びかけるときに使います。</p>
+      </div>
+      <input class="settings-text-input" id="userNameInput" type="text" maxlength="40" placeholder="例：たきそく" data-i18n-placeholder="userNamePlaceholder">
+    </div>
+  </section>
+
+  <section class="history-panel settings-panel">
+    <div class="settings-row">
+      <div>
+        <h2 data-i18n="language">言語</h2>
+        <p data-i18n="languageDescription">画面に表示する言語を選びます。</p>
+      </div>
+      <select class="menu-select settings-select" data-language-select>
+        <option value="ja" data-i18n="languageJa">日本語</option>
+        <option value="en" data-i18n="languageEn">English</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="history-panel settings-panel">
+    <div class="settings-section-head">
+      <h2 data-i18n="dataManagement">データ管理</h2>
+      <span id="settingsItemCount"></span>
+    </div>
+    <div class="settings-actions">
+      <button class="settings-action" id="driveSyncBtn" data-i18n="syncDrive">Google Drive と同期</button>
+      <button class="settings-action" id="importCsvBtn" data-i18n="importCsv">CSV を読み込み</button>
+      <button class="settings-action" id="exportCsvBtn" data-i18n="exportCsv">CSV として出力</button>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importCsvInput" accept=".csv,text/csv" hidden>
+
+<script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/pwa.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<script src="js/drive-sync.js"></script>
+<script src="js/settings.js"></script>
+
+</body>
+</html>

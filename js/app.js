@@ -5,7 +5,7 @@
 
 // ── 状態 ─────────────────────────────────────────
 
-let items       = [];   // { id, text, createdAt }[]
+let items       = [];   // { id, text, createdAt, doneAt }[]
 let currentCount = 0;
 let editingItem = null;
 let currentPage = 1;
@@ -365,7 +365,8 @@ function showToast(msg) {
 function applySyncedItems(nextItems) {
   items = nextItems
     .filter((item) => item && item.id && item.text && item.createdAt)
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    .map((item) => ({ ...item, doneAt: item.doneAt || item.createdAt }))
+    .sort((a, b) => new Date(getItemDoneAt(a)) - new Date(getItemDoneAt(b)));
   currentPage = 1;
   currentCount = items.length;
   document.getElementById('counterNum').textContent = currentCount;
@@ -412,88 +413,28 @@ function formatDate(iso) {
        + d.toLocaleTimeString(locale,  { hour: '2-digit', minute: '2-digit' });
 }
 
+function getItemDoneAt(item) {
+  return item.doneAt || item.createdAt;
+}
+
+function toDateTimeLocalValue(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function fromDateTimeLocalValue(value, fallbackIso) {
+  if (!value) return fallbackIso;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? fallbackIso : date.toISOString();
+}
+
 function escapeHtml(s) {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-}
-
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const next = text[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        cell += '"';
-        i += 1;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (char === ',' && !inQuotes) {
-      row.push(cell);
-      cell = '';
-      continue;
-    }
-
-    if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && next === '\n') i += 1;
-      row.push(cell);
-      if (row.some((value) => value.length > 0)) rows.push(row);
-      row = [];
-      cell = '';
-      continue;
-    }
-
-    cell += char;
-  }
-
-  row.push(cell);
-  if (row.some((value) => value.length > 0)) rows.push(row);
-  return rows;
-}
-
-function normalizeCsvHeader(value) {
-  return String(value ?? '').replace(/^\uFEFF/, '').trim();
-}
-
-function parseDoneCsv(text) {
-  const rows = parseCsv(text);
-  if (rows.length === 0) return [];
-
-  const headers = rows[0].map(normalizeCsvHeader);
-  const idIndex = headers.indexOf('id');
-  const createdAtIndex = headers.indexOf('createdAt');
-  const textIndex = headers.indexOf('text');
-
-  if (idIndex === -1 || createdAtIndex === -1 || textIndex === -1) {
-    throw new Error(I18N.t('csvHeaderError'));
-  }
-
-  return rows.slice(1).map((row, index) => {
-    const id = String(row[idIndex] ?? '').trim();
-    const createdAt = String(row[createdAtIndex] ?? '').trim();
-    const doneText = String(row[textIndex] ?? '').trim();
-
-    if (!id || !createdAt || !doneText) {
-      throw new Error(I18N.t('csvEmptyError', { line: index + 2 }));
-    }
-
-    if (Number.isNaN(new Date(createdAt).getTime())) {
-      throw new Error(I18N.t('csvDateError', { line: index + 2 }));
-    }
-
-    return { id, createdAt, text: doneText };
-  });
 }
 
 function getPageCount() {
@@ -579,7 +520,7 @@ function renderList() {
       <div class="item-num">#${num}</div>
       <div class="item-body">
         <div class="item-text">${escapeHtml(item.text)}</div>
-        <div class="item-date">${formatDate(item.createdAt)}</div>
+        <div class="item-date">${formatDate(getItemDoneAt(item))}</div>
       </div>
       <div class="item-edit-hint">${I18N.t('editHint')}</div>`;
 
@@ -592,7 +533,8 @@ function renderList() {
 
 function openModal(item) {
   editingItem = item;
-  document.getElementById('modalDate').textContent  = formatDate(item.createdAt);
+  document.getElementById('modalDate').textContent  = `${I18N.t('createdAt')}: ${formatDate(item.createdAt)}`;
+  document.getElementById('modalDoneAt').value      = toDateTimeLocalValue(getItemDoneAt(item));
   document.getElementById('modalInput').value       = item.text;
   document.getElementById('modalBg').classList.add('open');
   document.getElementById('modalInput').focus();
@@ -614,9 +556,12 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const newText = document.getElementById('modalInput').value.trim();
   if (!newText) { alert(I18N.t('textRequired')); return; }
 
-  const updatedItem = { ...editingItem, text: newText, updatedAt: new Date().toISOString() };
+  const nextDoneAt = fromDateTimeLocalValue(document.getElementById('modalDoneAt').value, getItemDoneAt(editingItem));
+  const updatedItem = { ...editingItem, text: newText, doneAt: nextDoneAt, updatedAt: new Date().toISOString() };
   const idx = items.findIndex(i => i.id === updatedItem.id);
   if (idx > -1) items[idx] = updatedItem;
+  items.sort((a, b) => new Date(getItemDoneAt(a)) - new Date(getItemDoneAt(b)));
+  clampCurrentPage();
 
   renderList();
   closeModal();
@@ -662,7 +607,7 @@ async function addDone() {
   playDoneSound();
 
   const now  = new Date().toISOString();
-  const item = { id: storageCreateId(), text, createdAt: now, updatedAt: now };
+  const item = { id: storageCreateId(), text, createdAt: now, doneAt: now, updatedAt: now };
   items.push(item);
   currentPage = 1;
 
@@ -695,110 +640,11 @@ async function addDone() {
 
 document.getElementById('doneBtn').addEventListener('click', addDone);
 
-// ── ヘッダーメニュー ──────────────────────────────
-document.getElementById('menuBtn').addEventListener('click', e => {
-  e.stopPropagation();
-  document.getElementById('menuDropdown').classList.toggle('open');
-});
-document.getElementById('menuDropdown').addEventListener('click', e => {
-  e.stopPropagation();
-});
-document.addEventListener('click', () => {
-  document.getElementById('menuDropdown').classList.remove('open');
-});
-
-document.getElementById('exportCsvBtn').addEventListener('click', () => {
-  document.getElementById('menuDropdown').classList.remove('open');
-  if (items.length === 0) {
-    alert(I18N.t('noData'));
-    return;
-  }
-  const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-  const formatLocalTimestampForFile = (date) => {
-    const pad = (n) => String(n).padStart(2, '0');
-    return [
-      date.getFullYear(),
-      pad(date.getMonth() + 1),
-      pad(date.getDate()),
-    ].join('-') + '_' + [
-      pad(date.getHours()),
-      pad(date.getMinutes()),
-      pad(date.getSeconds()),
-    ].join('-');
-  };
-  const rows = [['id', 'createdAt', 'text']];
-  items.forEach((item) => {
-    rows.push([item.id, item.createdAt, item.text].map(escapeCsv));
-  });
-  const csv  = rows.map(r => r.join(',')).join('\r\n');
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `done_stack_${formatLocalTimestampForFile(new Date())}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById('importCsvBtn').addEventListener('click', () => {
-  document.getElementById('menuDropdown').classList.remove('open');
-  document.getElementById('importCsvInput').click();
-});
-
-document.getElementById('importCsvInput').addEventListener('change', async (e) => {
-  const file = e.target.files?.[0];
-  e.target.value = '';
-  if (!file) return;
-
-  try {
-    const csvText = await file.text();
-    const importedItems = parseDoneCsv(csvText);
-    const existingIds = new Set(items.map((item) => String(item.id)));
-    const newItems = [];
-
-    importedItems.forEach((item) => {
-      const id = String(item.id);
-      if (existingIds.has(id)) return;
-      existingIds.add(id);
-      newItems.push(item);
-    });
-
-    for (const item of newItems) {
-      const importedItem = { ...item, updatedAt: item.updatedAt || item.createdAt };
-      await storageSave(importedItem);
-      items.push(importedItem);
-    }
-    scheduleDriveSync();
-
-    items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    currentPage = 1;
-    animateCounter(items.length);
-    renderList();
-
-    showToast(I18N.t('importDone', { count: newItems.length }));
-    if (newItems.length > 0) {
-      setBubble('maidBubble', I18N.getLanguage() === 'en'
-        ? `Imported ${newItems.length} entries.\nYour history has a little more weight now.`
-        : `${newItems.length}件の記録を取り込みました。\n履歴が少し厚くなりましたね。`);
-    }
-  } catch (error) {
-    console.warn('CSV import failed:', error);
-    alert(error.message || I18N.t('csvImportFailed'));
-  }
-});
-
-const driveSyncBtn = document.getElementById('driveSyncBtn');
-
-if (driveSyncBtn && window.doneStackDrive) {
+if (window.doneStackDrive) {
   window.doneStackDrive.init({
     getItems: getActiveItems,
     applyItems: applySyncedItems,
     showToast,
-  });
-
-  driveSyncBtn.addEventListener('click', async () => {
-    document.getElementById('menuDropdown').classList.remove('open');
-    await window.doneStackDrive.sync();
   });
 }
 
@@ -915,7 +761,7 @@ async function init() {
   setRandomDonePlaceholder();
 
   items = await storageLoad();
-  items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  items.sort((a, b) => new Date(getItemDoneAt(a)) - new Date(getItemDoneAt(b)));
 
   currentCount = items.length;
   document.getElementById('counterNum').textContent = currentCount;

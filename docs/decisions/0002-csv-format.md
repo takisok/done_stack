@@ -1,4 +1,4 @@
-# ADR 0002: CSV は id, createdAt, text のみ保存する
+# ADR 0002: CSV は id, createdAt, doneAt, text を保存する
 
 ## Status
 
@@ -11,18 +11,20 @@ CSV はバックアップと再取り込みに使います。
 
 ## Decision
 
-CSV は次の 3 カラムに統一します。
+CSV は次の 4 カラムに統一します。
 
 ```csv
-id,createdAt,text
+id,createdAt,doneAt,text
 ```
 
 - `id` は UUID
-- `createdAt` は UTC の ISO 文字列
+- `createdAt` は記録を作成した日時。UTC の ISO 文字列
+- `doneAt` は実際に Done した日時。UTC の ISO 文字列
 - `text` は本文
 
 ## Consequences
 
 - 再取り込み時に UUID で重複を判定できます。
+- 記録作成日時と Done 日時を分けて扱えます。
 - タイムゾーンに依存しない日時を保存できます。
 - 派生情報は保存せず、表示時に計算します。

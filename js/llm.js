@@ -157,6 +157,18 @@ function getLLMPromptSet() {
   return LLM_PROMPTS[lang] ?? LLM_PROMPTS.ja;
 }
 
+function buildLLMUserPrompt(doneText) {
+  const prompts = getLLMPromptSet();
+  const userName = window.I18N?.getUserName?.() || '';
+  return [
+    userName ? (I18N.getLanguage() === 'en' ? `User name: ${userName}` : `ユーザー名: ${userName}`) : '',
+    I18N.getLanguage() === 'en'
+      ? 'If it feels natural, you may address the user by this name.'
+      : '自然な場合は、この名前でユーザーに呼びかけてもかまいません。',
+    `${prompts.userPrefix}: ${doneText}`,
+  ].filter(Boolean).join('\n');
+}
+
 /**
  * メイドのLLMセリフをストリーミングで取得する。
  * @param {string}   doneText  ユーザーの達成内容
@@ -167,7 +179,7 @@ async function getMaidLLMResponse(doneText, onChunk) {
   const prompts = getLLMPromptSet();
   await streamGenerate(
     prompts.maidSystem,
-    `${prompts.userPrefix}: ${doneText}`,
+    buildLLMUserPrompt(doneText),
     onChunk,
   );
 }
@@ -183,7 +195,7 @@ async function getMascotLLMResponse(doneText) {
   let result = '';
   await streamGenerate(
     prompts.mascotSystem,
-    `${prompts.userPrefix}: ${doneText}`,
+    buildLLMUserPrompt(doneText),
     chunk => { result += chunk; },
   );
   return result.trim();

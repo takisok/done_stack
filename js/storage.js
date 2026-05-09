@@ -135,17 +135,29 @@ function storageNeedsIdMigration(item) {
   return typeof item.id !== 'string' || !item.id.includes('-');
 }
 
+function storageNormalizeItem(item) {
+  const createdAt = item.createdAt || storageNow();
+  return {
+    id: item.id || storageCreateId(),
+    text: String(item.text || ''),
+    createdAt,
+    doneAt: item.doneAt || createdAt,
+    updatedAt: item.updatedAt || createdAt,
+  };
+}
+
 async function storageNormalizeIds(items) {
   const migrated = [];
 
   for (const item of items) {
+    const normalizedItem = storageNormalizeItem(item);
     if (!storageNeedsIdMigration(item)) {
-      migrated.push(item);
+      migrated.push(normalizedItem);
       continue;
     }
 
     const oldId = item.id;
-    const nextItem = { ...item, id: storageCreateId(), updatedAt: item.updatedAt || storageNow() };
+    const nextItem = { ...normalizedItem, id: storageCreateId(), updatedAt: normalizedItem.updatedAt || storageNow() };
     migrated.push(nextItem);
 
     try {
@@ -186,16 +198,11 @@ async function storageLoad() {
 
 /**
  * 新しいアイテムを保存し、払い出された ID を返す。
- * item は { text, createdAt } を持つオブジェクト。
+ * item は { text, createdAt, doneAt } を持つオブジェクト。
  */
 async function storageSave(item) {
   const id = item.id || storageCreateId();
-  const savedItem = {
-    id,
-    text: item.text,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt || item.createdAt || storageNow(),
-  };
+  const savedItem = storageNormalizeItem({ ...item, id });
 
   if (useIDB && db) {
     await dbAdd(savedItem);
@@ -212,7 +219,7 @@ async function storageSave(item) {
  * item は id を含むこと。
  */
 async function storageUpdate(item) {
-  const savedItem = { ...item, updatedAt: item.updatedAt || storageNow() };
+  const savedItem = storageNormalizeItem({ ...item, updatedAt: item.updatedAt || storageNow() });
   if (useIDB && db) {
     await dbPut(savedItem);
     return;
@@ -239,12 +246,7 @@ async function storageDelete(id) {
 }
 
 async function storageReplaceAll(nextItems, options = {}) {
-  const normalized = nextItems.map((item) => ({
-    id: item.id || storageCreateId(),
-    text: String(item.text || ''),
-    createdAt: item.createdAt || storageNow(),
-    updatedAt: item.updatedAt || item.createdAt || storageNow(),
-  }));
+  const normalized = nextItems.map((item) => storageNormalizeItem(item));
 
   if (useIDB) {
     try {

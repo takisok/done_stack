@@ -1,10 +1,17 @@
 const I18N_STORAGE_KEY = 'done_stack_language';
+const USER_NAME_STORAGE_KEY = 'done_stack_user_name';
 
 const I18N_MESSAGES = {
   ja: {
     search: '⌕ 検索',
     searchAria: 'Doneを検索',
     settings: '⚙ 設定',
+    settingsTitle: '設定',
+    userName: 'ユーザー名',
+    userNameDescription: 'キャラクターが呼びかけるときに使います。',
+    userNamePlaceholder: '例： たろう',
+    languageDescription: '画面に表示する言語を選びます。',
+    dataManagement: 'データ管理',
     activityLog: '活動ログ',
     syncDrive: 'Google Drive と同期',
     importCsv: 'CSV を読み込み',
@@ -21,6 +28,8 @@ const I18N_MESSAGES = {
     listTitle: '▸ 積み上げリスト',
     emptyList: 'まだ何も積み上がっていません。<br>最初の一歩を踏み出しましょう！',
     edit: '▸ 編集',
+    doneAt: 'Done日時',
+    createdAt: '記録作成日時',
     delete: '削除',
     cancel: 'キャンセル',
     save: '保存',
@@ -69,9 +78,9 @@ const I18N_MESSAGES = {
     confirmDelete: 'この記録を削除しますか？',
     importDone: '{count}件を取り込みました',
     csvImportFailed: 'CSVの読み込みに失敗しました。',
-    csvHeaderError: 'CSVのヘッダーは id,createdAt,text の形式にしてください。',
+    csvHeaderError: 'CSVのヘッダーは id,createdAt,doneAt,text の形式にしてください。',
     csvEmptyError: '{line}行目に空の項目があります。',
-    csvDateError: '{line}行目のcreatedAtが日時として読めません。',
+    csvDateError: '{line}行目の日付が日時として読めません。',
     blankDone: '[空欄のDone]',
     editHint: '✎ 編集',
     milestone_1: '最初の一歩。ここから始まる。',
@@ -88,6 +97,12 @@ const I18N_MESSAGES = {
     search: '⌕ Search',
     searchAria: 'Search Done entries',
     settings: '⚙ Settings',
+    settingsTitle: 'Settings',
+    userName: 'User name',
+    userNameDescription: 'Characters may use this when speaking to you.',
+    userNamePlaceholder: 'e.g. John Doe',
+    languageDescription: 'Choose the language shown in the app.',
+    dataManagement: 'Data Management',
     activityLog: 'Activity Log',
     syncDrive: 'Sync with Google Drive',
     importCsv: 'Import CSV',
@@ -104,6 +119,8 @@ const I18N_MESSAGES = {
     listTitle: '▸ Done List',
     emptyList: 'Nothing stacked yet.<br>Take the tiniest first step.',
     edit: '▸ Edit',
+    doneAt: 'Done date',
+    createdAt: 'Created',
     delete: 'Delete',
     cancel: 'Cancel',
     save: 'Save',
@@ -152,9 +169,9 @@ const I18N_MESSAGES = {
     confirmDelete: 'Delete this entry?',
     importDone: 'Imported {count} entries',
     csvImportFailed: 'Failed to import CSV.',
-    csvHeaderError: 'CSV header must be id,createdAt,text.',
+    csvHeaderError: 'CSV header must be id,createdAt,doneAt,text.',
     csvEmptyError: 'Line {line} has an empty field.',
-    csvDateError: 'Line {line} createdAt is not a valid date.',
+    csvDateError: 'Line {line} has an invalid date.',
     blankDone: '[Blank Done]',
     editHint: '✎ Edit',
     milestone_1: 'First step taken. It starts here.',
@@ -216,10 +233,33 @@ function initLanguageControls() {
   });
 }
 
+function getUserName() {
+  try {
+    return String(localStorage.getItem(USER_NAME_STORAGE_KEY) || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function setUserName(name) {
+  const normalized = String(name || '').trim().slice(0, 40);
+  try {
+    if (normalized) {
+      localStorage.setItem(USER_NAME_STORAGE_KEY, normalized);
+    } else {
+      localStorage.removeItem(USER_NAME_STORAGE_KEY);
+    }
+  } catch { /* localStorage unavailable */ }
+  window.dispatchEvent(new CustomEvent('done-stack-user-name-change', { detail: { userName: normalized } }));
+  return normalized;
+}
+
 window.I18N = {
   t: translate,
   getLanguage: getCurrentLanguage,
   setLanguage: setCurrentLanguage,
+  getUserName,
+  setUserName,
   apply: applyTranslations,
   initControls: initLanguageControls,
 };

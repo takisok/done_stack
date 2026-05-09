@@ -24,22 +24,8 @@
       <form class="header-search" action="search.html" method="get" role="search">
         <input class="header-search-input" type="search" name="q" placeholder="検索" aria-label="Doneを検索" data-i18n-placeholder="search" data-i18n-aria-label="searchAria">
       </form>
-      <div class="header-menu">
-        <button class="menu-btn" id="menuBtn" data-i18n="settings">⚙ 設定</button>
-        <div class="menu-dropdown" id="menuDropdown">
-          <label class="menu-item menu-select-row">
-            <span data-i18n="language">言語</span>
-            <select class="menu-select" data-language-select>
-              <option value="ja" data-i18n="languageJa">日本語</option>
-              <option value="en" data-i18n="languageEn">English</option>
-            </select>
-          </label>
-          <a class="menu-item" href="history.html" data-i18n="activityLog">活動ログ</a>
-          <button class="menu-item" id="driveSyncBtn" data-i18n="syncDrive">Google Drive と同期</button>
-          <button class="menu-item" id="importCsvBtn" data-i18n="importCsv">CSV を読み込み</button>
-          <button class="menu-item" id="exportCsvBtn" data-i18n="exportCsv">CSV として出力</button>
-        </div>
-      </div>
+      <a class="menu-btn header-action" href="history.html" data-i18n="activityLog">活動ログ</a>
+      <a class="menu-btn header-action" href="settings.html" data-i18n="settings">⚙ 設定</a>
     </div>
   </div>
 </header>
@@ -105,6 +91,10 @@
   <div class="modal">
     <div class="modal-title" data-i18n="edit">▸ 編集</div>
     <div class="modal-date" id="modalDate"></div>
+    <label class="modal-field">
+      <span data-i18n="doneAt">Done日時</span>
+      <input class="modal-datetime" id="modalDoneAt" type="datetime-local">
+    </label>
     <textarea class="modal-textarea" id="modalInput" rows="3" maxlength="1024"></textarea>
     <div class="modal-btns">
       <button class="btn-del"    id="btnDel" data-i18n="delete">削除</button>
@@ -116,7 +106,6 @@
 
 <!-- マイルストーントースト -->
 <div class="toast" id="toast"></div>
-<input type="file" id="importCsvInput" accept=".csv,text/csv" hidden>
 
 <!-- ── スクリプト（依存順） ── -->
 <script src="js/storage.js"></script>

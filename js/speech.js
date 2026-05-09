@@ -146,6 +146,18 @@ function getSpeechSet() {
   return SPEECH_SETS[lang] ?? SPEECH_SETS.ja;
 }
 
+function maybeAddressUser(line, character) {
+  const userName = window.I18N?.getUserName?.() || '';
+  if (!userName) return line;
+
+  const lang = window.I18N?.getLanguage?.() || 'ja';
+  const chance = character === 'maid' ? 0.45 : 0.28;
+  if (Math.random() >= chance) return line;
+
+  if (lang === 'en') return `${userName}, ${line}`;
+  return character === 'maid' ? `${userName}さん、${line}` : `${userName}、${line}`;
+}
+
 /**
  * Done テキストに合ったメイドのセリフを返す。
  */
@@ -153,15 +165,15 @@ function getMaidSpeech(text) {
   const speechSet = getSpeechSet();
   for (const { pattern, category } of speechSet.keywordMap) {
     if (pattern.test(text)) {
-      return pick(speechSet.maid[category])(text);
+      return maybeAddressUser(pick(speechSet.maid[category])(text), 'maid');
     }
   }
-  return pick(speechSet.maid.default)(text);
+  return maybeAddressUser(pick(speechSet.maid.default)(text), 'maid');
 }
 
 /**
  * ランダムなマスコットのセリフを返す。
  */
 function getMascotSpeech() {
-  return pick(getSpeechSet().mascot);
+  return maybeAddressUser(pick(getSpeechSet().mascot), 'mascot');
 }

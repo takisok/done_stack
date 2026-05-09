@@ -17,7 +17,7 @@ function pad2(n) {
 }
 
 function parseItemDate(item) {
-  const date = new Date(item.createdAt);
+  const date = new Date(item.doneAt || item.createdAt);
   return Number.isNaN(date.getTime()) ? new Date() : date;
 }
 
@@ -232,7 +232,7 @@ function renderSearch(query) {
 
 async function initSearch() {
   I18N.initControls();
-  searchItems = await storageLoad();
+  searchItems = (await storageLoad()).map((item) => ({ ...item, doneAt: item.doneAt || item.createdAt }));
   const params = new URLSearchParams(location.search);
   renderSearch(params.get('q') || '');
   window.addEventListener('done-stack-language-change', () => renderSearch(params.get('q') || ''));

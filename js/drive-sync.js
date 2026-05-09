@@ -279,7 +279,8 @@ const DRIVE_MAX_DATE_LENGTH = 40;
     const normalized = [];
 
     source.slice(0, DRIVE_MAX_ITEMS).forEach((item) => {
-      if (!item || !item.id || !item.text || !isValidSyncDate(item.createdAt)) {
+      const doneAt = item?.doneAt || item?.createdAt;
+      if (!item || !item.id || !item.text || !isValidSyncDate(item.createdAt) || !isValidSyncDate(doneAt)) {
         summary.invalidItems += 1;
         return;
       }
@@ -289,6 +290,7 @@ const DRIVE_MAX_DATE_LENGTH = 40;
         id: String(item.id),
         text: text.slice(0, DRIVE_MAX_TEXT_LENGTH),
         createdAt: item.createdAt,
+        doneAt,
         updatedAt: isValidSyncDate(item.updatedAt) ? item.updatedAt : item.createdAt,
       });
     });
@@ -367,7 +369,7 @@ const DRIVE_MAX_DATE_LENGTH = 40;
     return {
       version: 1,
       updatedAt: new Date().toISOString(),
-      items: [...byId.values()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+      items: [...byId.values()].sort((a, b) => new Date(a.doneAt || a.createdAt) - new Date(b.doneAt || b.createdAt)),
       deletedItems,
       warnings: summarizeValidation({
         itemsOverLimit: localNormalized.summary.itemsOverLimit,

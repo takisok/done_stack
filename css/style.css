@@ -558,6 +558,34 @@ textarea {
 .modal-title { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
 .modal-date  { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
 
+.modal-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.modal-field span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.modal-datetime {
+  background: var(--surface-0);
+  border: 1px solid var(--border-hi);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  min-height: 40px;
+  outline: none;
+  padding: 0 10px;
+}
+
+.modal-datetime:focus {
+  border-color: rgba(0,0,0,0.36);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+
 .modal-textarea {
   width: 100%;
   background: var(--surface-1);
@@ -1482,6 +1510,90 @@ textarea {
   padding: 0 2px;
 }
 
+/* ── 設定ページ ── */
+.settings-app {
+  padding-top: 26px;
+}
+
+.settings-panel {
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
+.settings-row,
+.settings-section-head {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.settings-row h2,
+.settings-section-head h2 {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.settings-row p {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.settings-select {
+  min-width: 140px;
+}
+
+.settings-text-input {
+  background: var(--surface-0);
+  border: 1px solid var(--border-hi);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  height: 40px;
+  min-width: 220px;
+  outline: none;
+  padding: 0 12px;
+}
+
+.settings-text-input:focus {
+  border-color: rgba(0,0,0,0.36);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+
+#settingsItemCount {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.settings-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.settings-action {
+  align-items: center;
+  background: var(--surface-0);
+  border: 1px solid var(--border-hi);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  font-family: inherit;
+  font-size: 14px;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 14px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.settings-action:hover {
+  background: var(--surface-1);
+}
+
 /* ── LLM ステータス ── */
 .llm-status {
   display: flex;
@@ -1602,6 +1714,21 @@ textarea {
     margin: 1px 0;
     width: 100%;
     padding: 0 14px;
+  }
+
+  .settings-row,
+  .settings-section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-select {
+    width: 100%;
+  }
+
+  .settings-text-input {
+    min-width: 0;
+    width: 100%;
   }
 
   .done-item {
