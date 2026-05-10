@@ -1788,6 +1788,13 @@ textarea {
   text-underline-offset: 3px;
 }
 
+.policy-link-list {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
 /* ── LLM ステータス ── */
 .llm-status {
   display: flex;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'done-stack-pwa-v44';
+const CACHE_NAME = 'done-stack-pwa-v45';
 const APP_SHELL = [
   './',
   './index.html',
@@ -7,6 +7,8 @@ const APP_SHELL = [
   './history.html',
   './search.html',
   './settings.html',
+  './LICENSE',
+  './THIRD_PARTY_NOTICES.md',
   './manifest.json',
   './css/style.css',
   './js/app.js',

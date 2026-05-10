@@ -1,0 +1,23 @@
+Copyright (c) 2026 takisok.
+All rights reserved.
+
+This repository contains the source code and assets for "できたスタンプ💮"
+("Dekita Stamp💮").
+
+Unless otherwise stated in a separate written agreement, no permission is
+granted to copy, modify, merge, publish, distribute, sublicense, sell, host,
+or reuse this software or its assets, in whole or in part.
+
+You may view this repository for reference. Public availability of the source
+code does not make this software open source and does not grant permission to
+redistribute or create derivative works from it.
+
+Third-party components included in this repository are licensed separately by
+their respective copyright holders. See THIRD_PARTY_NOTICES.md and the license
+files under vendor/ for details.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT
+OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF THE SOFTWARE.
