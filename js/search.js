@@ -25,6 +25,16 @@ function toDateKey(date) {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
+function dateKeyToDate(dateKey) {
+  return new Date(`${dateKey}T00:00:00`);
+}
+
+function addDays(date, days) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
 function formatDay(date) {
   return date.toLocaleDateString(I18N.getLanguage() === 'en' ? 'en-US' : 'ja-JP', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' });
 }
@@ -59,9 +69,21 @@ function groupByDate(results, valueGetter) {
     const key = toDateKey(parseItemDate(result.item));
     grouped.set(key, (grouped.get(key) || 0) + valueGetter(result));
   });
-  return [...grouped.entries()]
-    .map(([dateKey, value]) => ({ dateKey, value }))
-    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+
+  const sortedKeys = [...grouped.keys()].sort();
+  if (!sortedKeys.length) return [];
+
+  const rows = [];
+  let cursor = dateKeyToDate(sortedKeys[0]);
+  const endKey = sortedKeys.at(-1);
+
+  while (toDateKey(cursor) <= endKey) {
+    const dateKey = toDateKey(cursor);
+    rows.push({ dateKey, value: grouped.get(dateKey) || 0 });
+    cursor = addDays(cursor, 1);
+  }
+
+  return rows;
 }
 
 function renderFallbackChart(container, rows, options = {}) {
@@ -72,7 +94,7 @@ function renderFallbackChart(container, rows, options = {}) {
 
   const max = Math.max(1, ...rows.map((row) => Math.abs(row.value)));
   container.innerHTML = rows.map((row) => {
-    const date = new Date(`${row.dateKey}T00:00:00`);
+    const date = dateKeyToDate(row.dateKey);
     const width = Math.max(3, Math.round((Math.abs(row.value) / max) * 100));
     const value = options.formatValue ? options.formatValue(row.value) : row.value;
     return `
@@ -206,12 +228,13 @@ function renderSearch(query) {
   const occurrenceTotal = results.reduce((sum, result) => sum + result.occurrences, 0);
   const occurrenceRows = groupByDate(results, (result) => result.occurrences);
   const numberRows = groupByDate(results, (result) => result.numbers.reduce((sum, value) => sum + value, 0));
+  const activeDayCount = new Set(results.map((result) => toDateKey(parseItemDate(result.item)))).size;
   const numberTotal = results.reduce((sum, result) => sum + result.numbers.reduce((inner, value) => inner + value, 0), 0);
   const numberCount = results.reduce((sum, result) => sum + result.numbers.length, 0);
 
   document.getElementById('matchTotal').textContent = results.length;
   document.getElementById('occurrenceTotal').textContent = I18N.t('occurrenceUnit', { count: occurrenceTotal });
-  document.getElementById('matchDays').textContent = I18N.t('dayUnit', { count: occurrenceRows.length });
+  document.getElementById('matchDays').textContent = I18N.t('dayUnit', { count: activeDayCount });
   document.getElementById('numberTotal').textContent = numberCount ? `${numberTotal}` : '-';
   renderLineChart(document.getElementById('occurrenceChart'), occurrenceRows, {
     name: I18N.t('occurrences'),

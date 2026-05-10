@@ -11,6 +11,7 @@
   --border:      rgba(0,0,0,0.10);
   --border-hi:   rgba(0,0,0,0.24);
   --text:        #111111;
+  --text-sub:    rgba(0,0,0,0.72);
   --text-muted:  rgba(0,0,0,0.52);
   --text-dim:    rgba(0,0,0,0.28);
   --black:       #1f1f1f;
@@ -700,6 +701,19 @@ textarea {
   mix-blend-mode: screen;
 }
 
+.done-stamp-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 302;
+  font-size: 42px;
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(0.35) rotate(var(--start-rotate, -6deg));
+  transform-origin: center;
+  animation: doneStampPop 1s cubic-bezier(0.16, 0.9, 0.25, 1) forwards;
+  filter: drop-shadow(0 4px 8px rgba(160, 30, 70, 0.22));
+  will-change: transform, opacity;
+}
+
 @keyframes lightBurst {
   0% {
     opacity: 0;
@@ -712,6 +726,25 @@ textarea {
   100% {
     opacity: 0;
     transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(0.55);
+  }
+}
+
+@keyframes doneStampPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35) rotate(var(--start-rotate, -6deg));
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -64%) scale(1.28) rotate(calc(var(--start-rotate, -6deg) + 8deg));
+  }
+  58% {
+    opacity: 1;
+    transform: translate(-50%, -76%) scale(1) rotate(calc(var(--start-rotate, -6deg) - 3deg));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -108%) scale(0.72) rotate(calc(var(--start-rotate, -6deg) + 14deg));
   }
 }
 
@@ -1594,6 +1627,167 @@ textarea {
   background: var(--surface-1);
 }
 
+.settings-link-action {
+  flex-shrink: 0;
+  min-width: 168px;
+}
+
+.settings-link-group {
+  display: grid;
+  flex-shrink: 0;
+  gap: 8px;
+  min-width: 190px;
+}
+
+/* ── 紹介ページ ── */
+.about-app {
+  padding-top: 26px;
+}
+
+.about-hero {
+  align-items: center;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  margin-bottom: 18px;
+  min-height: 320px;
+  padding: 22px 0 12px;
+}
+
+.about-hero-copy h1 {
+  font-family: Georgia, 'Times New Roman', 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
+  font-size: 42px;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  max-width: 760px;
+}
+
+.about-hero-copy p {
+  color: var(--text-sub);
+  font-size: 15px;
+  line-height: 1.9;
+  max-width: 720px;
+}
+
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.about-inline-actions {
+  margin-top: 16px;
+}
+
+.about-primary-link,
+.about-secondary-link {
+  align-items: center;
+  border-radius: 4px;
+  display: inline-flex;
+  font-size: 14px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+.about-primary-link {
+  background: var(--black);
+  color: #fff;
+}
+
+.about-secondary-link {
+  background: var(--surface-0);
+  border: 1px solid var(--border-hi);
+  color: var(--text);
+}
+
+.about-mascot-wrap {
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
+  min-height: 230px;
+}
+
+.about-mascot {
+  filter: drop-shadow(0 12px 16px rgba(0,0,0,0.14));
+  max-height: 210px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.about-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.about-card,
+.about-wide-panel {
+  padding: 18px;
+}
+
+.about-card h2,
+.about-wide-panel h2 {
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.about-card p,
+.about-wide-panel p,
+.about-list {
+  color: var(--text-sub);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.about-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.about-list li + li {
+  margin-top: 6px;
+}
+
+.about-wide-panel {
+  margin-bottom: 16px;
+}
+
+.about-example-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.about-example-cloud span {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 7px 10px;
+}
+
+.privacy-policy h2 {
+  font-size: 15px;
+  margin: 22px 0 8px;
+}
+
+.privacy-policy h2:first-of-type {
+  margin-top: 0;
+}
+
+.privacy-policy a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ── LLM ステータス ── */
 .llm-status {
   display: flex;
@@ -1729,6 +1923,48 @@ textarea {
   .settings-text-input {
     min-width: 0;
     width: 100%;
+  }
+
+  .settings-link-action {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .settings-link-group {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .about-app {
+    padding-top: 18px;
+  }
+
+  .about-hero {
+    gap: 16px;
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-top: 10px;
+  }
+
+  .about-hero-copy h1 {
+    font-size: 31px;
+  }
+
+  .about-hero-copy p {
+    font-size: 14px;
+  }
+
+  .about-mascot-wrap {
+    min-height: 118px;
+    order: -1;
+  }
+
+  .about-mascot {
+    max-height: 118px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
   }
 
   .done-item {

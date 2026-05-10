@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title data-i18n="privacyPageTitle">できたスタンプ💮 - プライバシーポリシー</title>
+  <meta name="theme-color" content="#1f1f1f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="できたスタンプ💮">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a class="header-title header-link" href="index.html" data-i18n="appName">できたスタンプ💮</a>
+    <div class="header-tools">
+      <a class="menu-btn header-action" href="about.html" data-i18n="backToAbout">紹介へ戻る</a>
+    </div>
+  </div>
+</header>
+
+<main class="app about-app">
+  <section class="history-hero">
+    <div>
+      <div class="history-kicker" data-i18n="privacyKicker">Privacy Policy</div>
+      <h1 class="history-title" data-i18n="privacyTitle">プライバシーポリシー</h1>
+    </div>
+  </section>
+
+  <section class="history-panel about-wide-panel privacy-policy">
+    <p data-i18n="privacyIntro">できたスタンプ💮（以下「本アプリ」）は、ユーザーが日々の達成を記録するためのブラウザアプリです。本アプリは、開発者が管理するサーバーにユーザーの記録データを保存しません。</p>
+
+    <h2 data-i18n="privacyStoredTitle">1. 保存される情報</h2>
+    <p data-i18n="privacyStoredBody">本アプリでは、ユーザーが入力した記録本文、作成日時、達成日時、削除ログ、ユーザー名や言語などの設定情報を保存します。これらの情報は、通常、ユーザーのブラウザ内のIndexedDBに保存されます。IndexedDBが利用できない場合はlocalStorageに保存されることがあります。</p>
+
+    <h2 data-i18n="privacyDriveTitle">2. Google Drive同期</h2>
+    <p data-i18n="privacyDriveBody">ユーザーがGoogle Drive同期を有効にした場合、本アプリはユーザー本人のGoogle Driveのアプリ専用領域に同期データを保存します。利用するGoogle APIのスコープは https://www.googleapis.com/auth/drive.appdata です。このスコープは、本アプリが作成・使用するアプリ専用データを扱うためのものであり、ユーザーの通常のGoogle Driveファイル全体を閲覧する目的ではありません。</p>
+    <p data-i18n="privacyGoogleUseBody">本アプリがGoogle APIから取得した情報は、Google Drive同期機能の提供のみに使用し、広告、分析、第三者提供、AIモデルの学習には使用しません。</p>
+
+    <h2 data-i18n="privacyLlmTitle">3. ローカルLLM連携</h2>
+    <p data-i18n="privacyLlmBody">ユーザーがローカルLLM連携を利用する場合、入力された記録内容はユーザーの端末上で動作するOllamaに送信されます。本アプリは、外部のLLMサービスへ記録内容を送信する設計ではありません。</p>
+
+    <h2 data-i18n="privacyThirdPartyTitle">4. 第三者提供</h2>
+    <p data-i18n="privacyThirdPartyBody">開発者は、ユーザーの記録データを取得、閲覧、販売、第三者提供しません。ただし、Google Drive同期を利用する場合は、Googleのサービスを通じてデータが保存されます。</p>
+
+    <h2 data-i18n="privacyDeleteTitle">5. データの削除</h2>
+    <p data-i18n="privacyDeleteBody">ユーザーは、ブラウザのサイトデータを削除することで、ローカルに保存されたデータを削除できます。Google Drive同期を利用している場合は、Googleアカウント側のアプリデータを削除することで、同期データを削除できます。CSVとしてエクスポートしたファイルは、ユーザー自身が管理・削除してください。</p>
+
+    <h2 data-i18n="privacyDisclaimerTitle">6. 免責</h2>
+    <p data-i18n="privacyDisclaimerBody">本アプリは、ユーザーの端末、ブラウザ、Google Driveの状態により、データの保存や同期が正常に行われない場合があります。重要なデータは、必要に応じてCSVエクスポートなどでバックアップしてください。</p>
+
+    <h2 data-i18n="privacyRevisionTitle">7. 改定</h2>
+    <p data-i18n="privacyRevisionBody">本ポリシーは、必要に応じて変更されることがあります。重要な変更がある場合は、本アプリまたは公開ページ上で案内します。</p>
+
+    <h2 data-i18n="privacyContactTitle">8. 問い合わせ</h2>
+    <p><span data-i18n="privacyContactBody">本ポリシーに関する問い合わせは、以下の連絡先までお願いします。</span><br><a href="mailto:dekita.stamp@gmail.com">dekita.stamp@gmail.com</a></p>
+  </section>
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/pwa.js"></script>
+<script src="js/about.js"></script>
+
+</body>
+</html>

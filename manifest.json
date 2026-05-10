@@ -1,7 +1,7 @@
 {
-  "name": "Done Stack",
-  "short_name": "Done Stack",
-  "description": "今日できたことを記録して積み上げるローカルファーストアプリ",
+  "name": "できたスタンプ💮",
+  "short_name": "できたスタンプ💮",
+  "description": "今日できたことを記録して、できた実感を残すローカルファーストアプリ",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

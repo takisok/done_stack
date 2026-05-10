@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title data-i18n="aboutPageTitle">できたスタンプ💮 - このアプリについて</title>
+  <meta name="theme-color" content="#1f1f1f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="できたスタンプ💮">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a class="header-title header-link" href="index.html" data-i18n="appName">できたスタンプ💮</a>
+    <div class="header-tools">
+      <a class="menu-btn header-action" href="index.html" data-i18n="backToInput">入力へ戻る</a>
+    </div>
+  </div>
+</header>
+
+<main class="app about-app">
+  <section class="about-hero">
+    <div class="about-hero-copy">
+      <div class="history-kicker" data-i18n="aboutKicker">できたスタンプ💮について</div>
+      <h1 data-i18n="aboutHeroTitle">案外がんばっていた自分に気付く</h1>
+      <p data-i18n="aboutHeroLead">「できたスタンプ💮」は、小さな達成を記録することで、次の一歩を踏み出しやすくするための記録アプリです。「何かを始めようと思った」「気になっていたことを検索した」「一行だけドキュメントを書き進めた」そんな些細なことでも記録を残すことで、毎日が少しだけ楽しく感じられることを目指しています。</p>
+      <div class="about-actions">
+        <a class="about-primary-link" href="index.html" data-i18n="startUsing">使ってみる</a>
+      </div>
+    </div>
+    <div class="about-mascot-wrap" aria-hidden="true">
+      <img class="about-mascot" src="img/mascot/keytan.png" alt="">
+    </div>
+  </section>
+
+  <section class="about-grid">
+    <article class="history-panel about-card">
+      <h2 data-i18n="aboutWhatTitle">できたスタンプ💮とは</h2>
+      <p data-i18n="aboutWhatBody">「できたスタンプ💮」は、タスクを管理するのではなく、すでにできたことを残すためのツールです。些細なことでも「できた」の履歴を残すことで、後から振り返ることができます。ゲームの得点のように、数字が増えるのを見るだけで少し前向きになれる……そんな気持ちを日常に生かすことができれば幸いです。</p>
+    </article>
+
+    <article class="history-panel about-card">
+      <h2 data-i18n="aboutHowTitle">使い方</h2>
+      <ul class="about-list">
+        <li data-i18n="aboutHowOne">入力欄に行ったことを書いて「できた！」を押します。行動まで至らなくても、思い立っただけでもそれは前向きなこととして記録して構いません。</li>
+        <li data-i18n="aboutHowTwo">記入が面倒な場合は空欄で「できた！」ボタンのみ押すことも可能です。この場合は [空欄のできた] として保存されます。</li>
+        <li data-i18n="aboutHowThree">活動ログや検索結果のページで、これまでに積み重ねた「できた！」を振り返ることができます。</li>
+      </ul>
+    </article>
+
+    <article class="history-panel about-card">
+      <h2 data-i18n="aboutDataTitle">データ保存</h2>
+      <p data-i18n="aboutDataBody">「できたスタンプ💮」では、開発側がユーザーのデータを閲覧、管理することはできない設計になっています。記録したデータは基本的にブラウザ内のIndexedDBに保存されています。複数のデバイス間でデータを同期したい場合にはGoogle Driveを利用できますが、この場合もユーザーのGoogle Driveのアプリ専用領域に保存します。</p>
+    </article>
+
+    <article class="history-panel about-card">
+      <h2 data-i18n="aboutCharactersTitle">メイさんとキーたん</h2>
+      <p data-i18n="aboutCharactersBody">メイさんは、エプロンに小さなクッキー型ワッペンをつけた、現実を知っている優しさ担当のメイドさんです。キーたんは、丸くてもふもふでかわいいけれど少しシニカルなマスコットです。二人が、あなたのできたことをそれぞれの距離感で見守ります。</p>
+    </article>
+  </section>
+
+  <section class="history-panel about-wide-panel">
+    <div>
+      <div class="history-kicker" data-i18n="aboutExamplesKicker">Tiny Done Examples</div>
+      <h2 data-i18n="aboutExamplesTitle">こんなこともDoneでいい</h2>
+    </div>
+    <div class="about-example-cloud" aria-label="Done examples">
+      <span data-i18n="aboutExampleOne">今日も一日がんばった！</span>
+      <span data-i18n="aboutExampleTwo">5分だけ作業を進めた</span>
+      <span data-i18n="aboutExampleThree">やらなければならない仕事をリストアップした</span>
+      <span data-i18n="aboutExampleFour">前向きな気持ちになった</span>
+      <span data-i18n="aboutExampleFive">深呼吸をした</span>
+      <span data-i18n="aboutExampleSix">今日も生きている</span>
+    </div>
+  </section>
+
+  <section class="history-panel about-wide-panel">
+    <div>
+      <div class="history-kicker" data-i18n="privacyKicker">Privacy Policy</div>
+      <h2 data-i18n="privacyPolicy">プライバシーポリシー</h2>
+      <p data-i18n="aboutPrivacyBody">データの保存場所、Google Drive同期、ローカルLLM連携、問い合わせ先について確認できます。</p>
+      <div class="about-actions about-inline-actions">
+        <a class="about-secondary-link" href="privacy.html" data-i18n="privacyPolicy">プライバシーポリシー</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/pwa.js"></script>
+<script src="js/about.js"></script>
+
+</body>
+</html>

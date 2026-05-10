@@ -275,6 +275,15 @@ const LIGHT_PARTICLE_COLORS = [
   '#d86bff',
 ];
 function spawnParticles(x, y) {
+  const stamp = document.createElement('div');
+  stamp.className = 'done-stamp-particle';
+  stamp.textContent = '💮';
+  stamp.style.left = `${x}px`;
+  stamp.style.top = `${y}px`;
+  stamp.style.setProperty('--start-rotate', `${Math.random() * 18 - 9}deg`);
+  document.body.appendChild(stamp);
+  setTimeout(() => stamp.remove(), 1200);
+
   const ring = document.createElement('div');
   ring.className = 'particle-ring';
   ring.style.left = `${x}px`;
@@ -566,8 +575,8 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   renderList();
   closeModal();
   setBubble('maidBubble', I18N.getLanguage() === 'en'
-    ? 'Edited beautifully!\nA touch of perfectionism suits you ✨'
-    : '修正されましたね！\n完璧主義ですわ✨');
+    ? 'Edited beautifully ✨\nAdjusting the record is also a fine Done 🍪'
+    : '修正されましたね✨\n記録を整えるのも立派なDoneです🍪');
 
   try {
     await storageUpdate(updatedItem);
@@ -587,8 +596,8 @@ document.getElementById('btnDel').addEventListener('click', async () => {
   renderList();
   closeModal();
   setBubble('maidBubble', I18N.getLanguage() === 'en'
-    ? 'Deleted.\nLet us stack something new again!'
-    : '削除しました…\nでもまた積み上げましょう！');
+    ? 'Deleted.\nA fresh stack can begin anytime 🍪'
+    : '削除しました…\nまた新しく積めば大丈夫です🍪');
   setBubble('mascotBubble', I18N.getLanguage() === 'en'
     ? 'Gone. Well, days do that.'
     : '消えた。まあ、そういう日もある。');
@@ -770,16 +779,16 @@ async function init() {
   // ウェルカムセリフ
   if (items.length === 0) {
     setBubble('maidBubble', I18N.getLanguage() === 'en'
-      ? 'Nice to meet you!\nLet us start stacking together!'
-      : '初めまして！\n一緒に積み上げましょう！');
+      ? 'Nice to meet you! I am Mei 🍪\nTiny Done entries are very welcome ✨'
+      : '初めまして、メイです🍪\n小さなDone、大歓迎です✨');
     setBubble('mascotBubble', I18N.getLanguage() === 'en'
       ? '...Keytan. Fine, hello.'
       : '…キーたん。まあ、よろしく。');
   } else {
     const n = items.length;
     setBubble('maidBubble', I18N.getLanguage() === 'en'
-      ? `Welcome back!\nYou have already stacked ${n} Done entries ✨`
-      : `おかえりなさい！\nもう${n}個も積み上げましたね✨`);
+      ? `Welcome back 🍪\nYou have already stacked ${n} Done entries ✨`
+      : `おかえりなさいませ🍪\nもう${n}個も積み上げましたね✨`);
     setBubble('mascotBubble', I18N.getLanguage() === 'en'
       ? (n >= 10 ? 'Back again. Fine, I am watching.' : 'Still continuing. Mildly impressive.')
       : (n >= 10 ? 'また来たの。まあ、見てるけど。' : '続けてるね。ちょっとだけ感心。'));

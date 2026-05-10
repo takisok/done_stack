@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com https://content.googleapis.com; connect-src 'self' http://localhost:11434 http://127.0.0.1:11434 https://accounts.google.com https://apis.google.com https://www.googleapis.com https://content.googleapis.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'; frame-src https://accounts.google.com https://content.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Done Stack - 設定</title>
+  <title data-i18n="settingsPageTitle">できたスタンプ💮 - 設定</title>
   <meta name="theme-color" content="#1f1f1f">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Done Stack">
+  <meta name="apple-mobile-web-app-title" content="できたスタンプ💮">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
@@ -18,7 +18,7 @@
 
 <header class="app-header">
   <div class="header-inner">
-    <a class="header-title header-link" href="index.html">Done Stack</a>
+    <a class="header-title header-link" href="index.html" data-i18n="appName">できたスタンプ💮</a>
     <div class="header-tools">
       <a class="menu-btn header-action" href="index.html" data-i18n="backToInput">入力へ戻る</a>
     </div>
@@ -28,7 +28,7 @@
 <main class="app settings-app">
   <section class="history-hero">
     <div>
-      <div class="history-kicker">Done Stack</div>
+      <div class="history-kicker" data-i18n="appName">できたスタンプ💮</div>
       <h1 class="history-title" data-i18n="settingsTitle">設定</h1>
     </div>
   </section>
@@ -53,6 +53,19 @@
         <option value="ja" data-i18n="languageJa">日本語</option>
         <option value="en" data-i18n="languageEn">English</option>
       </select>
+    </div>
+  </section>
+
+  <section class="history-panel settings-panel">
+    <div class="settings-row">
+      <div>
+        <h2 data-i18n="aboutApp">このアプリについて</h2>
+        <p data-i18n="aboutAppDescription">できたスタンプ💮の考え方、使い方、データ保存について確認できます。</p>
+      </div>
+      <div class="settings-link-group">
+        <a class="settings-action settings-link-action" href="about.html" data-i18n="openAbout">紹介ページを開く</a>
+        <a class="settings-action settings-link-action" href="privacy.html" data-i18n="privacyPolicy">プライバシーポリシー</a>
+      </div>
     </div>
   </section>
 

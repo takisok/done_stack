@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com https://content.googleapis.com; connect-src 'self' http://localhost:11434 http://127.0.0.1:11434 https://accounts.google.com https://apis.google.com https://www.googleapis.com https://content.googleapis.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; worker-src 'self'; frame-src https://accounts.google.com https://content.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Done Stack ✨ 積み上げろ！</title>
+  <title data-i18n="homeTitle">できたスタンプ💮</title>
   <meta name="theme-color" content="#1f1f1f">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Done Stack">
+  <meta name="apple-mobile-web-app-title" content="できたスタンプ💮">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
@@ -19,7 +19,7 @@
 
 <header class="app-header">
   <div class="header-inner">
-    <span class="header-title">Done Stack ✨</span>
+    <span class="header-title" data-i18n="appName">できたスタンプ💮</span>
     <div class="header-tools">
       <form class="header-search" action="search.html" method="get" role="search">
         <input class="header-search-input" type="search" name="q" placeholder="検索" aria-label="Doneを検索" data-i18n-placeholder="search" data-i18n-aria-label="searchAria">
@@ -54,9 +54,9 @@
 
     <!-- 右：メイドさん -->
     <div class="char-col maid-char-col">
-      <div class="bubble maid-bubble" id="maidBubble">今日も一緒に頑張りましょう！</div>
+      <div class="bubble maid-bubble" id="maidBubble">今日も小さく積んでいきましょう🍪</div>
       <div class="maid-avatar" id="maidAvatar">
-        <img class="char-img maid-img" id="maidImage" src="img/maid/maid-idle.png" alt="黒髪セミロングでホワイトブリムをつけたデフォルメメイドキャラクター" width="185" height="260">
+        <img class="char-img maid-img" id="maidImage" src="img/maid/maid-idle.png" alt="エプロンに小さなクッキー型ワッペンをつけたメイドキャラクターのメイさん" width="185" height="260">
       </div>
     </div>
 
@@ -68,14 +68,14 @@
     <div class="input-row">
       <input type="text" id="doneInput" class="done-input"
         placeholder="例：スマホを置いた、深呼吸した" maxlength="200">
-      <button id="doneBtn" class="done-btn" data-i18n="doneButton">✓ Done!</button>
+      <button id="doneBtn" class="done-btn" data-i18n="doneButton">できた！</button>
     </div>
   </div>
 
   <!-- ── Doneリスト ── -->
   <div class="list-wrap">
     <div class="list-header">
-      <div class="list-title" data-i18n="listTitle">▸ 積み上げリスト</div>
+    <div class="list-title" data-i18n="listTitle">できた！ことのリスト</div>
       <div class="list-count" id="listCount"></div>
     </div>
     <div class="done-list" id="doneList">
