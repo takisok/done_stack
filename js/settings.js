@@ -32,11 +32,31 @@ function getActiveItems() {
 }
 
 function applySyncedItems(nextItems) {
+  console.log('[settings] applySyncedItems received', {
+    itemCount: nextItems.length,
+    lastItems: nextItems.slice(-5).map((item) => ({
+      id: item.id,
+      text: item.text,
+      createdAt: item.createdAt,
+      doneAt: item.doneAt,
+      updatedAt: item.updatedAt,
+    })),
+  });
   settingsItems = nextItems
     .filter((item) => item && item.id && item.text && item.createdAt)
     .map((item) => ({ ...item, doneAt: item.doneAt || item.createdAt }))
     .sort((a, b) => new Date(a.doneAt || a.createdAt) - new Date(b.doneAt || b.createdAt));
   updateItemCount();
+  console.log('[settings] settingsItems after apply', {
+    itemCount: settingsItems.length,
+    lastItems: settingsItems.slice(-5).map((item) => ({
+      id: item.id,
+      text: item.text,
+      createdAt: item.createdAt,
+      doneAt: item.doneAt,
+      updatedAt: item.updatedAt,
+    })),
+  });
 }
 
 function escapeCsv(value) {

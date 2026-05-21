@@ -372,6 +372,16 @@ function showToast(msg) {
 }
 
 function applySyncedItems(nextItems) {
+  console.log('[app] applySyncedItems received', {
+    itemCount: nextItems.length,
+    lastItems: nextItems.slice(-5).map((item) => ({
+      id: item.id,
+      text: item.text,
+      createdAt: item.createdAt,
+      doneAt: item.doneAt,
+      updatedAt: item.updatedAt,
+    })),
+  });
   items = nextItems
     .filter((item) => item && item.id && item.text && item.createdAt)
     .map((item) => ({ ...item, doneAt: item.doneAt || item.createdAt }))
@@ -380,6 +390,16 @@ function applySyncedItems(nextItems) {
   currentCount = items.length;
   document.getElementById('counterNum').textContent = currentCount;
   renderList();
+  console.log('[app] items after apply', {
+    itemCount: items.length,
+    lastItems: items.slice(-5).map((item) => ({
+      id: item.id,
+      text: item.text,
+      createdAt: item.createdAt,
+      doneAt: item.doneAt,
+      updatedAt: item.updatedAt,
+    })),
+  });
 }
 
 function getActiveItems() {

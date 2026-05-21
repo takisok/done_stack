@@ -24,8 +24,14 @@
       <form class="header-search" action="search.html" method="get" role="search">
         <input class="header-search-input" type="search" name="q" placeholder="検索" aria-label="Doneを検索" data-i18n-placeholder="search" data-i18n-aria-label="searchAria">
       </form>
-      <a class="menu-btn header-action" href="history.html" data-i18n="activityLog">活動ログ</a>
-      <a class="menu-btn header-action" href="settings.html" data-i18n="settings">⚙ 設定</a>
+      <a class="menu-btn header-action" href="history.html" aria-label="活動ログ">
+        <span class="header-action-full" data-i18n="activityLog">活動ログ</span>
+        <span class="header-action-short" data-i18n="activityLogShort">ログ</span>
+      </a>
+      <a class="menu-btn header-action" href="settings.html" aria-label="設定">
+        <span class="header-action-full" data-i18n="settings">⚙ 設定</span>
+        <span class="header-action-short" data-i18n="settingsShort">⚙</span>
+      </a>
     </div>
   </div>
 </header>

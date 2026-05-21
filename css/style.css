@@ -95,6 +95,7 @@ textarea {
 .header-search {
   display: flex;
   align-items: center;
+  flex: 0 1 220px;
   gap: 6px;
   min-width: 0;
 }
@@ -140,6 +141,10 @@ textarea {
   transition: border-color 0.2s, color 0.2s;
 }
 .menu-btn:hover { border-color: rgba(0,0,0,0.3); color: var(--text); }
+
+.header-action-short {
+  display: none;
+}
 
 .menu-dropdown {
   display: none;
@@ -218,7 +223,9 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
+  min-height: 0;
 }
 
 /* ── 吹き出し ── */
@@ -304,8 +311,10 @@ textarea {
   width: auto;
   max-width: 100%;
   object-fit: contain;
+  object-position: bottom center;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.10));
   transition: transform 0.3s;
+  transform-origin: bottom center;
 }
 
 .mascot-img {
@@ -318,8 +327,12 @@ textarea {
 }
 
 .maid-avatar {
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
   position: relative;
-  width: fit-content;
+  height: 260px;
+  width: 185px;
 }
 
 /* ── カウンター ── */
@@ -906,6 +919,11 @@ textarea {
 
 .maid-img {
   height: 205px;
+}
+
+.maid-avatar {
+  height: 205px;
+  width: 146px;
 }
 
 .counter-col {
@@ -1824,6 +1842,26 @@ textarea {
 .llm-status[data-state="off"]      .llm-label { color: #999; }
 
 /* ── レスポンシブ ── */
+@media (max-width: 760px) {
+  .header-search {
+    flex: 1 1 150px;
+  }
+
+  .header-action-full {
+    display: none;
+  }
+
+  .header-action-short {
+    display: inline;
+  }
+
+  .header-tools .menu-btn {
+    flex-shrink: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 @media (max-width: 560px) {
   body {
     background: #eef0f3;
@@ -1876,6 +1914,7 @@ textarea {
   .bubble { max-width: 118px; font-size: 10.5px; }
   .mascot-img { height: 92px; transform: translateY(8px); }
   .maid-img { height: 128px; }
+  .maid-avatar { height: 128px; width: 91px; }
 
   .counter-label {
     font-size: 13px;

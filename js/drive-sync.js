@@ -331,6 +331,21 @@ const DRIVE_MAX_DATE_LENGTH = 40;
     return new Date(a || 0).getTime() >= new Date(b || 0).getTime();
   }
 
+  function summarizeItemsForDebug(source) {
+    const items = Array.isArray(source) ? source : [];
+    return items.slice(-5).map((item) => ({
+      id: item?.id,
+      text: item?.text,
+      createdAt: item?.createdAt,
+      doneAt: item?.doneAt,
+      updatedAt: item?.updatedAt,
+    }));
+  }
+
+  function createSyncDebugId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 6)}`;
+  }
+
   function mergePayload(localItems, remotePayload) {
     const localNormalized = normalizeItemsWithSummary(localItems);
     const remoteNormalized = normalizeItemsWithSummary(remotePayload?.items || []);
@@ -384,14 +399,17 @@ const DRIVE_MAX_DATE_LENGTH = 40;
   async function sync(options = {}) {
     const silent = Boolean(options.silent);
     const interactive = options.interactive ?? !silent;
+    const syncId = createSyncDebugId();
 
     if (syncInFlight) {
       syncQueued = true;
+      console.log(`[drive-sync:${syncId}] queued because another sync is running`);
       return false;
     }
 
     syncInFlight = true;
     try {
+      console.log(`[drive-sync:${syncId}] start`, { silent, interactive, signedIn });
       await ensureGoogleClients();
       if (!signedIn || !gapi.client.getToken()) {
         const connected = await signIn({ prompt: interactive && !hasConnectionHint() ? 'consent' : '', silent });
@@ -400,21 +418,56 @@ const DRIVE_MAX_DATE_LENGTH = 40;
       setStatus('syncing', I18N.getLanguage() === 'en' ? 'Syncing Drive...' : 'Drive 同期中...');
 
       const file = await findDriveFile();
+      console.log(`[drive-sync:${syncId}] file`, {
+        id: file?.id,
+        name: file?.name,
+        modifiedTime: file?.modifiedTime,
+      });
+
       const remotePayload = await readRemotePayload(file?.id);
-      const mergedPayload = mergePayload(hooks.getItems(), remotePayload);
+      console.log(`[drive-sync:${syncId}] remote payload`, {
+        updatedAt: remotePayload?.updatedAt,
+        itemCount: remotePayload?.items?.length || 0,
+        deletedCount: Object.keys(remotePayload?.deletedItems || {}).length,
+        lastItems: summarizeItemsForDebug(remotePayload?.items),
+      });
+
+      const localItems = hooks.getItems();
+      console.log(`[drive-sync:${syncId}] local before merge`, {
+        itemCount: localItems.length,
+        lastItems: summarizeItemsForDebug(localItems),
+      });
+
+      const mergedPayload = mergePayload(localItems, remotePayload);
+      console.log(`[drive-sync:${syncId}] merged payload`, {
+        updatedAt: mergedPayload.updatedAt,
+        itemCount: mergedPayload.items.length,
+        deletedCount: Object.keys(mergedPayload.deletedItems || {}).length,
+        warnings: mergedPayload.warnings,
+        lastItems: summarizeItemsForDebug(mergedPayload.items),
+      });
 
       await storageReplaceAll(mergedPayload.items, { deletedItems: mergedPayload.deletedItems });
+      console.log(`[drive-sync:${syncId}] local storage replaced`, {
+        itemCount: mergedPayload.items.length,
+      });
       hooks.applyItems(mergedPayload.items);
       await uploadPayload(file?.id, mergedPayload);
+      console.log(`[drive-sync:${syncId}] uploaded`, {
+        fileId: file?.id,
+        itemCount: mergedPayload.items.length,
+        updatedAt: mergedPayload.updatedAt,
+      });
 
       setStatus('on', I18N.getLanguage() === 'en' ? 'Drive synced' : 'Drive 同期済み');
       if (!silent) {
         const message = I18N.getLanguage() === 'en' ? 'Synced with Google Drive' : 'Google Drive と同期しました';
         hooks.showToast(mergedPayload.warnings.length ? `${message}\n${mergedPayload.warnings.join('\n')}` : message);
       }
+      console.log(`[drive-sync:${syncId}] done`);
       return true;
     } catch (error) {
-      console.warn('[drive-sync] sync failed:', error);
+      console.warn(`[drive-sync:${syncId}] sync failed:`, error);
       if (!silent) {
         setStatus('error', 'Drive 同期失敗');
         alert(error.message || (I18N.getLanguage() === 'en' ? 'Failed to sync with Google Drive.' : 'Google Drive との同期に失敗しました。'));
