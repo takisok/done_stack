@@ -77,22 +77,24 @@ const I18N_MESSAGES = {
     privacyIntro: 'できたスタンプ💮（以下「本アプリ」）は、ユーザーが日々の達成を記録するためのブラウザアプリです。本アプリは、開発者が管理するサーバーにユーザーの記録データを保存しません。',
     privacyStoredTitle: '1. 保存される情報',
     privacyStoredBody: '本アプリでは、ユーザーが入力した記録本文、作成日時、達成日時、削除ログ、ユーザー名や言語などの設定情報を保存します。これらの情報は、通常、ユーザーのブラウザ内のIndexedDBに保存されます。IndexedDBが利用できない場合はlocalStorageに保存されることがあります。',
-    privacyDriveTitle: '2. Google Drive同期',
+    privacyPurposeTitle: '2. 利用目的',
+    privacyPurposeBody: '本アプリは、保存される情報を、記録の保存・表示・編集・検索、活動ログの表示、Google Drive同期、ローカルLLM連携、問い合わせ対応のために利用します。本アプリは、保存される情報を、これらの目的以外には利用しません。また、開発者がユーザーの記録内容を直接取得して分析することはありません。',
+    privacyDriveTitle: '3. Google Drive同期',
     privacyDriveBody: 'ユーザーがGoogle Drive同期を有効にした場合、本アプリはユーザー本人のGoogle Driveのアプリ専用領域に同期データを保存します。利用するGoogle APIのスコープは https://www.googleapis.com/auth/drive.appdata です。このスコープは、本アプリが作成・使用するアプリ専用データを扱うためのものであり、ユーザーの通常のGoogle Driveファイル全体を閲覧する目的ではありません。',
     privacyGoogleUseBody: '本アプリがGoogle APIから取得した情報は、Google Drive同期機能の提供のみに使用し、広告、分析、第三者提供、AIモデルの学習には使用しません。',
-    privacyLlmTitle: '3. ローカルLLM連携',
+    privacyLlmTitle: '4. ローカルLLM連携',
     privacyLlmBody: 'ユーザーがローカルLLM連携を利用する場合、入力された記録内容はユーザーの端末上で動作するOllamaに送信されます。本アプリは、外部のLLMサービスへ記録内容を送信する設計ではありません。',
-    privacyThirdPartyTitle: '4. 第三者提供',
+    privacyThirdPartyTitle: '5. 第三者提供',
     privacyThirdPartyBody: '開発者は、ユーザーの記録データを取得、閲覧、販売、第三者提供しません。ただし、Google Drive同期を利用する場合は、Googleのサービスを通じてデータが保存されます。',
-    privacyDeleteTitle: '5. データの削除',
-    privacyDeleteBody: 'ユーザーは、ブラウザのサイトデータを削除することで、ローカルに保存されたデータを削除できます。Google Drive同期を利用している場合は、Googleアカウント側のアプリデータを削除することで、同期データを削除できます。CSVとしてエクスポートしたファイルは、ユーザー自身が管理・削除してください。',
-    privacyDisclaimerTitle: '6. 免責',
+    privacyDeleteTitle: '6. データの削除',
+    privacyDeleteBody: 'ユーザーは、ブラウザのサイトデータを削除することで、ローカルに保存されたデータを削除できます。Google Drive同期を利用している場合は、Google Driveのアプリ管理画面から本アプリの非表示アプリデータを削除することで、同期データを削除できます。CSVとしてエクスポートしたファイルは、ユーザー自身が管理・削除してください。',
+    privacyDisclaimerTitle: '7. 免責',
     privacyDisclaimerBody: '本アプリは、ユーザーの端末、ブラウザ、Google Driveの状態により、データの保存や同期が正常に行われない場合があります。重要なデータは、必要に応じてCSVエクスポートなどでバックアップしてください。',
-    privacyRevisionTitle: '7. 改定',
+    privacyRevisionTitle: '8. 改定',
     privacyRevisionBody: '本ポリシーは、必要に応じて変更されることがあります。重要な変更がある場合は、本アプリまたは公開ページ上で案内します。',
-    privacyContactTitle: '8. 問い合わせ',
+    privacyContactTitle: '9. 問い合わせ',
     privacyContactBody: '本ポリシーに関する問い合わせは、以下の連絡先までお願いします。',
-    privacyRelatedTitle: '9. ライセンス',
+    privacyRelatedTitle: '10. ライセンス',
     privacyRelatedBody: '本アプリ本体の利用条件と、同梱している第三者ライブラリのライセンスは以下から確認できます。',
     appLicense: 'アプリ本体のライセンス',
     thirdPartyNotices: '第三者ライブラリのライセンス表示',
@@ -230,22 +232,24 @@ const I18N_MESSAGES = {
     privacyIntro: 'Dekita Stamp💮 (the "App") is a browser app for recording everyday accomplishments. The App does not store user records on a server managed by the developer.',
     privacyStoredTitle: '1. Information stored',
     privacyStoredBody: 'The App stores record text entered by the user, creation dates, accomplishment dates, deletion logs, and settings such as user name and language. This information is normally stored in IndexedDB inside the user’s browser. If IndexedDB is unavailable, localStorage may be used instead.',
-    privacyDriveTitle: '2. Google Drive sync',
+    privacyPurposeTitle: '2. Purpose of use',
+    privacyPurposeBody: 'The App uses stored information to save, display, edit, and search records; display activity logs; provide Google Drive sync; provide local LLM integration; and respond to inquiries. The App does not use stored information for purposes other than these. The developer does not directly collect or analyze users’ record contents.',
+    privacyDriveTitle: '3. Google Drive sync',
     privacyDriveBody: 'If the user enables Google Drive sync, the App stores sync data in the app-specific area of the user’s own Google Drive. The Google API scope used is https://www.googleapis.com/auth/drive.appdata. This scope is used to handle app-specific data created or used by the App, and is not intended to read the user’s regular Google Drive files.',
     privacyGoogleUseBody: 'Information obtained from Google APIs is used only to provide Google Drive sync. It is not used for advertising, analytics, third-party sharing, or AI model training.',
-    privacyLlmTitle: '3. Local LLM integration',
+    privacyLlmTitle: '4. Local LLM integration',
     privacyLlmBody: 'If the user uses local LLM integration, entered record content is sent to Ollama running on the user’s own device. The App is not designed to send record content to external LLM services.',
-    privacyThirdPartyTitle: '4. Third-party sharing',
+    privacyThirdPartyTitle: '5. Third-party sharing',
     privacyThirdPartyBody: 'The developer does not collect, view, sell, or share user record data with third parties. However, when Google Drive sync is used, data is stored through Google services.',
-    privacyDeleteTitle: '5. Data deletion',
-    privacyDeleteBody: 'Users can delete locally stored data by deleting browser site data. If Google Drive sync is used, sync data can be deleted by removing app data from the Google account. CSV files exported by the user should be managed and deleted by the user.',
-    privacyDisclaimerTitle: '6. Disclaimer',
+    privacyDeleteTitle: '6. Data deletion',
+    privacyDeleteBody: 'Users can delete locally stored data by deleting browser site data. If Google Drive sync is used, sync data can be deleted by deleting this app’s hidden app data from the Google Drive app management screen. CSV files exported by the user should be managed and deleted by the user.',
+    privacyDisclaimerTitle: '7. Disclaimer',
     privacyDisclaimerBody: 'Depending on the user’s device, browser, or Google Drive state, saving or syncing data may not work correctly. Important data should be backed up as needed, for example by CSV export.',
-    privacyRevisionTitle: '7. Changes',
+    privacyRevisionTitle: '8. Changes',
     privacyRevisionBody: 'This policy may be changed as needed. Important changes will be announced in the App or on the public page.',
-    privacyContactTitle: '8. Contact',
+    privacyContactTitle: '9. Contact',
     privacyContactBody: 'For questions about this policy, please contact:',
-    privacyRelatedTitle: '9. Licenses',
+    privacyRelatedTitle: '10. Licenses',
     privacyRelatedBody: 'You can review the license terms for this app and the notices for bundled third-party software below.',
     appLicense: 'App license',
     thirdPartyNotices: 'Third-party notices',
@@ -311,13 +315,23 @@ const I18N_MESSAGES = {
 };
 
 function getCurrentLanguage() {
-  const saved = localStorage.getItem(I18N_STORAGE_KEY);
-  return saved === 'en' ? 'en' : 'ja';
+  try {
+    const saved = localStorage.getItem(I18N_STORAGE_KEY);
+    if (saved === 'en' || saved === 'ja') return saved;
+  } catch { /* localStorage unavailable */ }
+
+  const browserLanguages = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language || navigator.userLanguage || ''];
+  const primaryLanguage = String(browserLanguages[0] || '').toLowerCase();
+  return primaryLanguage.startsWith('ja') ? 'ja' : 'en';
 }
 
 function setCurrentLanguage(lang) {
   const nextLang = lang === 'en' ? 'en' : 'ja';
-  localStorage.setItem(I18N_STORAGE_KEY, nextLang);
+  try {
+    localStorage.setItem(I18N_STORAGE_KEY, nextLang);
+  } catch { /* localStorage unavailable */ }
   document.documentElement.lang = nextLang;
 }
 
